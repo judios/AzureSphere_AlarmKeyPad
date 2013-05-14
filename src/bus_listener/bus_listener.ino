@@ -19,8 +19,8 @@
 #include "BUS_Reactor.h"
 #include "SoftwareSerial2.h"
 
-#define ADEMCO_RX 8
-#define ADEMCO_TX 9
+#define ADEMCO_RX 7
+#define ADEMCO_TX 6
 #define DEVICE_ADDRESS 19
 
 SoftwareSerial myAdemcoSerial(ADEMCO_RX,ADEMCO_TX);

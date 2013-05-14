@@ -163,11 +163,14 @@ void BUS_Reactor::handleEvents() {
             uint8_t oldSREG = SREG;
             cli();  // turn off interrupts for a clean txmit
 
-            duration = pulseIn( 8, HIGH ); // Waits on pin1 for a LOW value is less that 1 sec
+            duration = pulseIn( 7, HIGH ); 
             
+            // Waits on pin1 for a HIGH value is at least 12 millisec            
             if ( duration >= 12 * 1000 ) {                  
                 myAdemco->write( 0xff );
+                pulseIn( 7, HIGH );
                 myAdemco->write( 0xff );
+                pulseIn( 7, HIGH );
                 myAdemco->write( 0x7f );
 
                 wantToSend = false;               

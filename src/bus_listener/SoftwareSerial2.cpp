@@ -366,7 +366,7 @@ SoftwareSerial::~SoftwareSerial()
 void SoftwareSerial::setTX(uint8_t tx)
 {
   pinMode(tx, OUTPUT);
-  digitalWrite(tx, LOW);
+  digitalWrite(tx, HIGH);
   _transmitBitMask = digitalPinToBitMask(tx);
   uint8_t port = digitalPinToPort(tx);
   _transmitPortRegister = portOutputRegister(port);
@@ -471,11 +471,11 @@ size_t SoftwareSerial::write(uint8_t b) {
   cli();  // turn off interrupts for a clean txmit
 
   // Write the start bit
-  tx_pin_write(_inverse_logic == false ? HIGH : LOW);
+  tx_pin_write(_inverse_logic == true ? HIGH : LOW);
   tunedDelay(_tx_delay + XMIT_START_ADJUSTMENT);
 
   // Write each of the 8 bits
-  if (_inverse_logic == false) {
+  if (_inverse_logic == true) {
     for (byte mask = 0x01; mask; mask <<= 1) {
       if (b & mask) { // choose bit
         tx_pin_write(LOW); // send 1
@@ -502,20 +502,7 @@ size_t SoftwareSerial::write(uint8_t b) {
   }
 
   //stop bit
-  //tx_pin_write(_inverse_logic ? HIGH : LOW);
-  tx_pin_write(_inverse_logic == false ? LOW : HIGH);
-  tunedDelay(_tx_delay);
-
-  //3 stop bits
-  tunedDelay(_tx_delay);
-
-  tunedDelay(_tx_delay);
-
-  if (_inverse_logic == false) {
-    tx_pin_write(LOW); // restore pin to natural state
-  }else{
-    tx_pin_write(HIGH); // restore pin to natural state
-  }
+  tx_pin_write(_inverse_logic == true ? LOW : HIGH);
 
   SREG = oldSREG; // turn interrupts back on
   
