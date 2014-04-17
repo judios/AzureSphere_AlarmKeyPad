@@ -7,7 +7,7 @@ There are a few configurations available.  Most simply print CSV (Excel) compati
 You can also setup your web server configuration in the config.h file.  The processing power on the Arduino is limited so you cannot do SSL or even e-mail (because most gateways require TLS wrapped SMTP connections).  Sending a small packet to a web server allows you to extend the capabilities of the Arduino with a more powerful CPU.
 
 #Hardware Setup Read Only Interface
-Connect the data-out wire (yellow) to a max232 (Pin 8) or level shifter and put the output of this (Pin 9) to pin 7 on the Arduino.  Connect the data in wire (green) to pin 7.  
+Connect the data-out wire (yellow) to a max232 (Pin 8) or level shifter and put the output of this (Pin 9) to pin 7 on the Arduino. 
 
               Read Only Interface               |   Arduino    
                                                 |             
