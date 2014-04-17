@@ -9,8 +9,8 @@ You can also setup your web server configuration in the config.h file.  The proc
 #Hardware Setup Read Only Interface
 Connect the data-out wire (yellow) to a max232 (Pin 8) or level shifter and put the output of this (Pin 9) to pin 7 on the Arduino. 
 
-              Read Only Interface               |   Arduino    
-                                                |             
+                 Read Only Interface               |   Arduino    
+                                                   |             
     +---------+               +----------+         |  +--------+ 
     |         | Yellow Wire   |  MAX232  |TTL      |  |        | 
     | Ademco  |-------------->|8        9|---------|->|7       | 
@@ -47,7 +47,7 @@ In order to get perfect AND logic from multiple devices sending pulses at the sa
 
     (high)---\___(10ms low)___/---\______/---\_______/---\_____  (Yellow data-out)
     
-    __________________________/\_________/\__________/\_/\_____  (0xFF, 0xFF, 0xEF) (Green)
+    __________________________/\_________/\__________/\_/\_____  (0xFF, 0xFF, 0xEF) (Green data-in)
 
 #License
 This project uses some parts of Arduino IDE - specifically the SoftwareSerial library.  So, whatever license that is under, this project is under (for the time being).
