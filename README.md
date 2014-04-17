@@ -33,7 +33,26 @@ Connect the data-out wire (yellow) to a max232 (Pin 8) or level shifter and put 
     +---------+               +----------+         |  +--------+ 
                                                    |             
                      
+#Hardware Setup Write Interface (Not Tested and Under Development)
+Connect the data-in wire (green) to an optocoupler 4N25 (Pin 5) and put the input of it (Pin 1) to pin 6 on the Arduino.
 
+                 Write Interface                     |   Arduino    
+                                                     |
+                                                     |
+                    3K                               |
+             12V-/\/\/\/\--+                         |
+                           |                         |                                                    
+                           |                         |             
+    +---------+            |  +----------+           |  +--------+ 
+    |         | Green Wire |  |   4N25   |   380 Ohms|  |        | 
+    | Ademco  |<-----------+--|5        1|<---\/\/\/\---|6       | 
+    |Vista 20P|               |          |           |  |        | 
+    |  Panel  |               |          |           |  |        | 
+    |         |          +----|4        2|---+       |  |        | 
+    +---------+          |    +----------+   |       |  +--------+ 
+                         |                   |       |             
+                         |                   |
+                         +----------------- GND
 
 
 #Protocol
