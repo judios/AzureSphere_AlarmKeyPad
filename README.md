@@ -1,10 +1,23 @@
 # VISTA ICM Replacement
 This project is designed to allow you to connect an Arduino-like device to your Honeywell (Ademco) security panel and "listen in" for key events.  This project is an implemenation of reverse engineering the Ademco ECP keypad bus.
 
-#Config
-There are a few configurations available.  Most simply print CSV (Excel) compatible debugging of each signal.  Signals are decoded in ASCII, decimal, and hexidecimal values and printed to the serial port as comma separated (the last item has an extra comma after it, it's not missing data)
+#Config SoftwareSerial
+```c
+#define ADEMCO_RX 7
+#define ADEMCO_TX 6
+#define DEVICE_ADDRESS 19
 
-You can also setup your web server configuration in the config.h file.  The processing power on the Arduino is limited so you cannot do SSL or even e-mail (because most gateways require TLS wrapped SMTP connections).  Sending a small packet to a web server allows you to extend the capabilities of the Arduino with a more powerful CPU.
+SoftwareSerial myAdemcoSerial(ADEMCO_RX,ADEMCO_TX);
+BUS_Reactor vista20p(&myAdemcoSerial, DEVICE_ADDRESS)
+```
+
+#Config HardwareSerial
+```c
+#define DEVICE_ADDRESS 19
+
+HardwareSerial *myAdemcoSerial = &Serial1;
+BUS_Reactor vista20p(&myAdemcoSerial, DEVICE_ADDRESS)
+```
 
 #Hardware Setup Read Only Interface
 Connect the data-out wire (yellow) to a max232 (Pin 8) or level shifter and put the output of this (Pin 9) to pin 7 on the Arduino. 
