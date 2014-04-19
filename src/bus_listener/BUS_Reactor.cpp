@@ -39,13 +39,13 @@ inline void BUS_Reactor::tunedDelay(uint16_t delay) {
  */
 void BUS_Reactor::on_acknowledge() {
   
-  //if ( acknowledgeHandler.get_ack_address() == device_address ) {
+  if ( acknowledgeHandler.get_ack_address() == device_address ) {
         // IF there is no callback exit without processing
         if ( callbackCTS == NULL ) {
             return;
         }
         
-        char request = '*'; //(*callbackCTS)();
+        char request = (*callbackCTS)();
         
         if ( request == NULL ) {
             return;
@@ -75,10 +75,15 @@ void BUS_Reactor::on_acknowledge() {
 
             
         buffer[bufferIndex++] = chksum & 0xff; // checksum
-        
+        /*
         acknowledgeHandler.on_debug( buffer, bufferIndex );
         
-  //}
+        for ( int i = 0; i < (bufferIndex-1); i++ ) {
+          myAdemco->writeParity( buffer[i] );
+        }
+        */
+        
+  }
 
 }
 
@@ -89,12 +94,13 @@ void BUS_Reactor::on_acknowledge() {
 
 /*
  * Constructor
- * Initializes Serial Port at 4800 Bds 8E2
+ * Initializes Software Serial Port at 4800 Bds 8E2
  *
  */
-BUS_Reactor::BUS_Reactor(Stream *myAdemcoSerial, int device_address_parm) { 
+BUS_Reactor::BUS_Reactor(SoftwareSerial2 *myAdemcoSerial, int device_address_parm) { 
     myAdemco = myAdemcoSerial;
     wantToSend = false;
+    softwareSerial = true;
     sequence = 1;
     device_address = device_address_parm;
     callbackDisplay = NULL;
@@ -104,6 +110,28 @@ BUS_Reactor::BUS_Reactor(Stream *myAdemcoSerial, int device_address_parm) {
     acknowledgeHandler.set_serial_handler(myAdemco);
     statusHandler.set_serial_handler(myAdemco);
     displayHandler.set_serial_handler(myAdemco);
+    unkHandler.set_serial_handler(myAdemco);
+}
+
+/*
+ * Constructor
+ * Initializes Hardware Serial Port at 4800 Bds 8E2
+ *
+ */
+BUS_Reactor::BUS_Reactor(HardwareSerial *myAdemcoSerial, int device_address_parm) { 
+    myAdemcoHardware = myAdemcoSerial;
+    wantToSend = false;
+    softwareSerial = false;
+    sequence = 1;
+    device_address = device_address_parm;
+    callbackDisplay = NULL;
+    callbackStatus = NULL;  
+    callbackCTS = NULL;
+
+    acknowledgeHandler.set_serial_handler(myAdemcoHardware);
+    statusHandler.set_serial_handler(myAdemcoHardware);
+    displayHandler.set_serial_handler(myAdemcoHardware);
+    unkHandler.set_serial_handler(myAdemcoHardware);
 }
 
 /*
@@ -115,17 +143,26 @@ BUS_Reactor::~BUS_Reactor() {
     callbackCTS = NULL;
 }
 
+Stream * BUS_Reactor::getSerialHandler() {
+  if ( softwareSerial == true )  {
+    return myAdemco;
+  } else {
+    return myAdemcoHardware;
+  }
+  
+}
+    
+    
 /*
  * handle Serial events must be called inside the loop method
  */
 void BUS_Reactor::handleEvents() {
-
     // handle Reception
-    if ( myAdemco->available() > 0 ) {
-      char cr = myAdemco->read();
+    if ( getSerialHandler()->available() > 0 ) {
+      char cr = getSerialHandler()->read();
       
       if ( cr == F7_DISPLAY_EVENT ) {
-          
+
         if ( displayHandler.handle_event( F7_DISPLAY_EVENT ) > 0 ) {
             // IF there is no callback exit without processing
             if ( callbackDisplay == NULL ) {
@@ -135,12 +172,13 @@ void BUS_Reactor::handleEvents() {
         }
         
       } else if ( cr == F6_ACK_EVENT ) {
-        
+
         if ( acknowledgeHandler.handle_event( F6_ACK_EVENT ) > 0 ) {
             on_acknowledge();
         }
         
       } else if ( cr == F2_STATUS_EVENT ) {
+
         if ( statusHandler.handle_event( F2_STATUS_EVENT ) > 0 ) {
             // IF there is no callback exit without processing
             if ( callbackStatus == NULL ) {
@@ -149,36 +187,56 @@ void BUS_Reactor::handleEvents() {
             (*callbackStatus)(statusHandler);
         }
         
-      } else {
+      } else if ( cr == F9E_UNK_EVENT ) {
+        
+        if ( unkHandler.handle_event( F9E_UNK_EVENT ) > 0 ) {
+            
+        }
+        
+      }  else {
         // Unknown messages or cero
-        //on_debug( cr, false );
+        if ( callbackUnknown == NULL ) {
+          return;
+        }
+        
+        char buffer[12];
+        memset(buffer, 0x00, sizeof(buffer));
+        
+        sprintf( buffer, "[%02x]", cr );
+               
+        (*callbackUnknown)(buffer);
+
       }
 
     // No incomming data ? check if transmition is needed
     } else {
-      
+      /*
         if ( wantToSend == true ) {
             unsigned long duration;
             
             uint8_t oldSREG = SREG;
             cli();  // turn off interrupts for a clean txmit
 
-            duration = pulseIn( 7, HIGH ); 
-            
+            //duration = pulseIn( 7, HIGH ); 
+                        
             // Waits on pin1 for a HIGH value is at least 12 millisec            
-            if ( duration >= 12 * 1000 ) {                  
+            //if ( duration >= 12 * 1000 ) {                  
                 myAdemco->write( 0xff );
-                pulseIn( 7, HIGH );
+                delay(100);
+              //  pulseIn( 7, HIGH );
                 myAdemco->write( 0xff );
-                pulseIn( 7, HIGH );
-                myAdemco->write( 0x7f );
+                delay(100);
+              //  pulseIn( 7, HIGH );
+                myAdemco->write( 0xfe );
 
-                wantToSend = false;               
-            }
+              //  wantToSend = false;               
+            //}
+            delay(500);
+            
             
             SREG = oldSREG; // turn interrupts back on
         }
-      
+      */
     }
 }
 
@@ -202,6 +260,7 @@ void BUS_Reactor::attach_debug(ademcoDebugProtocolCallback debugCallbackParam) {
         acknowledgeHandler.enable_debug( debugCallback );
         statusHandler.enable_debug( debugCallback );
         displayHandler.enable_debug( debugCallback );
+        unkHandler.enable_debug( debugCallback );
     }
 }
 
@@ -209,8 +268,13 @@ void BUS_Reactor::attach_clear_to_send(ademcoClearToSendCallback ctsCallback) {
     callbackCTS = ctsCallback;
 }
 
+void BUS_Reactor::attach_unknown_message(ademcoUnknownCallback unknownCallback) {
+    callbackUnknown = unknownCallback;
+}
+
 void BUS_Reactor::deattach_debug() {
     acknowledgeHandler.disable_debug();
     statusHandler.disable_debug();
     displayHandler.disable_debug();
+    unkHandler.disable_debug();
 }

@@ -44,7 +44,7 @@ http://arduiniana.org.
 #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #endif
 
-class SoftwareSerial : public Stream
+class SoftwareSerial2 : public Stream
 {
 private:
   // per object data
@@ -67,7 +67,7 @@ private:
   static char _receive_buffer[_SS_MAX_RX_BUFF]; 
   static volatile uint8_t _receive_buffer_tail;
   static volatile uint8_t _receive_buffer_head;
-  static SoftwareSerial *active_object;
+  static SoftwareSerial2 *active_object;
 
   // private methods
   void recv();
@@ -81,8 +81,8 @@ private:
 
 public:
   // public methods
-  SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic = false);
-  ~SoftwareSerial();
+  SoftwareSerial2(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic = false);
+  ~SoftwareSerial2();
   void begin(long speed);
   bool listen();
   void end();
@@ -114,3 +114,4 @@ public:
 #undef round
 
 #endif
+

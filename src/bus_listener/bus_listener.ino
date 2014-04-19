@@ -16,53 +16,58 @@
     You should have received a copy of the GNU General Public License
     along with homesecurity.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "BUS_Reactor.h"
-#include "SoftwareSerial2.h"
 
-#define ADEMCO_RX 7
-#define ADEMCO_TX 6
+
+#include "BUS_Reactor.h"
+#include "SoftwareSerial.h"
+
+#define DEBUG_RX 10
+#define DEBUG_TX 11
 #define DEVICE_ADDRESS 19
 
-SoftwareSerial myAdemcoSerial(ADEMCO_RX,ADEMCO_TX);
-BUS_Reactor vista20p(&myAdemcoSerial, DEVICE_ADDRESS);
+
+SoftwareSerial myAdemcoSerial(DEBUG_RX,DEBUG_TX);
+BUS_Reactor vista20p(&Serial, DEVICE_ADDRESS);
+
 char characterToSend;
 
 void setup() {
+  Serial.begin(4800,SERIAL_8E2);
   myAdemcoSerial.begin(4800);
-  
-  Serial.begin(4800);
-  Serial.println("Setup");
+  myAdemcoSerial.println("Setup");
   
   vista20p.attach_display(message_ready);
   vista20p.attach_status(status_upated);
   vista20p.attach_debug(debug_protocol);
-  vista20p.attach_clear_to_send(send_to_keypad);
-
+  //vista20p.attach_unknown_message(debug_unknown);
 }
 
 void loop() {
     vista20p.handleEvents();
-    
-    if ( Serial.available() > 0 ) {
-        characterToSend = Serial.read();
-        Serial.println( characterToSend );
-        vista20p.request_to_send();
-    }
+        
 }
 
 void message_ready(Display_Handler mensaje) {
-  Serial.println( mensaje.to_string() );     
+  myAdemcoSerial.println();
+  myAdemcoSerial.print( mensaje.to_string() );     
 }
 
 void status_upated(Status_Handler new_status) {
-  Serial.println( new_status.to_string() );     
+  myAdemcoSerial.println();
+  myAdemcoSerial.print( new_status.to_string() );     
 }
 
 void debug_protocol(char *mensaje) {
-  Serial.println( mensaje );     
+  myAdemcoSerial.println();
+  myAdemcoSerial.print( mensaje );     
+}
+
+void debug_unknown(char *mensaje) {
+  myAdemcoSerial.write( mensaje );     
 }
 
 char send_to_keypad() {
     return characterToSend;
 }
+
 

@@ -20,11 +20,11 @@
 #define EVENT_HANDLER_H
 
 #include "Arduino.h"
-#include "SoftwareSerial2.h"
 
 int const F2_STATUS_EVENT = 0xFFF2;
 int const F6_ACK_EVENT = 0xFFF6;
 int const F7_DISPLAY_EVENT = 0xFFF7;
+int const F9E_UNK_EVENT = 0xFF9E;
 
 extern "C" {
     // callback function for Status updated Messages
