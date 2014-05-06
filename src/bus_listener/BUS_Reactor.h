@@ -19,6 +19,7 @@
 #ifndef BUS_REACTOR_h
 #define BUS_REACTOR_h
 
+
 #include "Arduino.h"
 #include "SoftwareSerial2.h"
 #include "Event_Handler.h"
@@ -61,7 +62,6 @@ private:
     // Notification methods
     void on_acknowledge();
     Stream * getSerialHandler();
-    static inline void tunedDelay(uint16_t delay);
 
     // Callbacks references
     ademcoStatusCallback callbackStatus;
@@ -79,7 +79,14 @@ private:
     
     int sequence;
     
-
+    
+    // Utility Methods
+    void addHandlers(Stream *myAdemco);
+    
+    static void risingEdgeCall();
+    static void fallingEdgeCall();
+    void detectPulse();
+    
 public:
   // public methods
   BUS_Reactor(SoftwareSerial2 *, int device_address);

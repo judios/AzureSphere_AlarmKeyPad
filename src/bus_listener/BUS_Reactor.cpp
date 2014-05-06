@@ -16,11 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with homesecurity.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include "Arduino.h"
 #include "BUS_Reactor.h"
 
 /* static */ 
-inline void BUS_Reactor::tunedDelay(uint16_t delay) { 
+inline void tunedDelay(uint16_t delay) { 
   uint8_t tmp=0;
 
   asm volatile("sbiw    %0, 0x01 \n\t"
@@ -28,7 +29,7 @@ inline void BUS_Reactor::tunedDelay(uint16_t delay) {
     "cpi %A0, 0xFF \n\t"
     "cpc %B0, %1 \n\t"
     "brne .-10 \n\t"
-    : "+w" (delay), "+a" (tmp)
+    : "+r" (delay), "+a" (tmp)
     : "0" (delay)
     );
 }
@@ -75,9 +76,11 @@ void BUS_Reactor::on_acknowledge() {
 
             
         buffer[bufferIndex++] = chksum & 0xff; // checksum
-        /*
-        acknowledgeHandler.on_debug( buffer, bufferIndex );
         
+        // SERIAL_8E1 Data should be written 8 Data 1 Parity(Even) 1 Stop Bits
+        
+        acknowledgeHandler.on_debug( buffer, bufferIndex );
+        /*
         for ( int i = 0; i < (bufferIndex-1); i++ ) {
           myAdemco->writeParity( buffer[i] );
         }
@@ -106,11 +109,10 @@ BUS_Reactor::BUS_Reactor(SoftwareSerial2 *myAdemcoSerial, int device_address_par
     callbackDisplay = NULL;
     callbackStatus = NULL;  
     callbackCTS = NULL;
+    debugCallback = NULL;
+    callbackUnknown = NULL;
 
-    acknowledgeHandler.set_serial_handler(myAdemco);
-    statusHandler.set_serial_handler(myAdemco);
-    displayHandler.set_serial_handler(myAdemco);
-    unkHandler.set_serial_handler(myAdemco);
+    addHandlers(myAdemco);
 }
 
 /*
@@ -127,11 +129,18 @@ BUS_Reactor::BUS_Reactor(HardwareSerial *myAdemcoSerial, int device_address_parm
     callbackDisplay = NULL;
     callbackStatus = NULL;  
     callbackCTS = NULL;
+    debugCallback = NULL;
+    callbackUnknown = NULL;
+    
+    addHandlers(myAdemcoHardware);
 
-    acknowledgeHandler.set_serial_handler(myAdemcoHardware);
-    statusHandler.set_serial_handler(myAdemcoHardware);
-    displayHandler.set_serial_handler(myAdemcoHardware);
-    unkHandler.set_serial_handler(myAdemcoHardware);
+}
+
+void BUS_Reactor::addHandlers(Stream *myAdemco) {
+    acknowledgeHandler.set_serial_handler(myAdemco);
+    statusHandler.set_serial_handler(myAdemco);
+    displayHandler.set_serial_handler(myAdemco);
+    unkHandler.set_serial_handler(myAdemco);
 }
 
 /*
@@ -209,40 +218,48 @@ void BUS_Reactor::handleEvents() {
       }
 
     // No incomming data ? check if transmition is needed
-    } else {
-      /*
-        if ( wantToSend == true ) {
-            unsigned long duration;
-            
-            uint8_t oldSREG = SREG;
-            cli();  // turn off interrupts for a clean txmit
+    } 
+      
+      
+      // SERIAL_8N2 Adress Data should be written 8 Data 2 Stop Bit No Parity
+      
+      if ( wantToSend == true ) {
 
-            //duration = pulseIn( 7, HIGH ); 
+          Serial.begin(4800,SERIAL_8N2);
+          unsigned long duration;            
                         
-            // Waits on pin1 for a HIGH value is at least 12 millisec            
-            //if ( duration >= 12 * 1000 ) {                  
-                myAdemco->write( 0xff );
-                delay(100);
-              //  pulseIn( 7, HIGH );
-                myAdemco->write( 0xff );
-                delay(100);
-              //  pulseIn( 7, HIGH );
-                myAdemco->write( 0xfe );
+          duration = pulseIn( 0, HIGH ); 
+            
+          // Waits on pin1 for a HIGH value is at least 12 millisec            
+          if ( duration >= 12 * 1000 ) {    
+                           
+              Serial.write( 0xff );
+              //pulseIn( 0, HIGH ); 
+              tunedDelay(236 * 4);
+              tunedDelay(236 * 4.60);
 
-              //  wantToSend = false;               
-            //}
-            delay(500);
+              Serial.write( 0xff );
+              //pulseIn( 0, HIGH ); 
+              tunedDelay(236 * 4);
+              tunedDelay(236 * 4.8);
+                
+              Serial.write( 0xfe ); // f7 = 19
+
+              Serial.flush();
+              wantToSend = false;               
+                
+              Serial.begin(4800,SERIAL_8E2);
+          }
+  
             
-            
-            SREG = oldSREG; // turn interrupts back on
-        }
-      */
-    }
+      }
+      
+    
 }
-
 
 void BUS_Reactor::request_to_send() {
     wantToSend = true;
+    
 }
 
 void BUS_Reactor::attach_display(ademcoDisplayCallback displayCallback) {
