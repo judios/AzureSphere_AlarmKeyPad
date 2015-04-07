@@ -57,7 +57,8 @@ Arduino address 19:
 
 #MQTT
 This sketch is publishing changes to a free mqtt server (test.mosquito.org) you can subscribe to the same same topic on a android phone
-width a mqtt client like [MyMQTT](https://play.google.com/store/apps/details?id=at.tripwire.mqtt.client&hl=en) 
+width a mqtt client like [MyMQTT](https://play.google.com/store/apps/details?id=at.tripwire.mqtt.client&hl=en) or by using
+a web mqtt client like [HiveMQ](http://www.hivemq.com/demos/websocket-client/)
 
 Arduino currently suports the below commands
 
@@ -100,9 +101,9 @@ In order to get perfect AND logic from multiple devices sending pulses at the sa
     __________________________/\_________/\__________/\_/\_____  (0xFF, 0xFF, 0xEF) (Green data-in)
 
 ```c
-                                LSB                         MSB
-    			        1248 1248  1248 1248  1248 1248
-Address - 16    FF,FF,FE        1111 1111  1111 1111  0111 1111
+				LSB                         MSB
+    				1248 1248  1248 1248  1248 1248
+Address - 16    FF,FF,FE	1111 1111  1111 1111  0111 1111
 Address - 17	FF,FF,FD	1111 1111  1111 1111  1011 1111
 Address - 18	FF,FF,FB	1111 1111  1111 1111  1101 1111
 Address - 19	FF,FF,F7	1111 1111  1111 1111  1110 1111 
