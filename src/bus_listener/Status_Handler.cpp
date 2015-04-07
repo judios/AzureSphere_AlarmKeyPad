@@ -115,8 +115,7 @@ int Status_Handler::get_count_down() {
   return -1;
 }
 
-char * Status_Handler::to_string() {
-    char internalBuffer[150];
+void Status_Handler::to_string(char *internalBuffer) {
     char auxBuffer[8];
     memset(internalBuffer, 0x00, sizeof(internalBuffer));
     
@@ -180,7 +179,6 @@ char * Status_Handler::to_string() {
       strcat(internalBuffer, " BYPASSED:");
     }
        
-   
-    return internalBuffer;
+
 }
 

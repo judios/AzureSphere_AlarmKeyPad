@@ -16,171 +16,141 @@
     You should have received a copy of the GNU General Public License
     along with homesecurity.  If not, see <http://www.gnu.org/licenses/>.
 */
-#define       NO_PORTB_PINCHANGES
-#define       NO_PORTC_PINCHANGES
-//#define       NO_PORTD_PINCHANGES
-#include <PinChangeInt.h>
+
 
 #include "BUS_Reactor.h"
-#include "SoftwareSerial.h"
+#include <SPI.h>
+#include <Ethernet.h>
+#include <PubSubClient.h>
 
-#define DEBUG_RX 10
-#define DEBUG_TX 11
-#define DEVICE_ADDRESS 16
+#define DEVICE_ADDRESS 19
 
-SoftwareSerial myAdemcoSerial(DEBUG_RX,DEBUG_TX);
 BUS_Reactor vista20p(&Serial, DEVICE_ADDRESS);
 
 char characterToSend;
-int addressCharacters[] = {0xff, 0xff, 0xfe };
-int addressCount = 0;
-boolean pulseInDetected;
-unsigned long pulseStart = 0;
-unsigned long pulseTime = 0;
 
-void risingEdgeCall() {
-    pulseInDetected = false;
-    pulseStart = micros();
+byte mac[] = {0x90, 0xA2, 0xDA, 0x0D, 0xD7, 0x19 };
+char clientName[] = "arduino:mty:90a2da0dd719";
+byte ip[] = {10, 1, 1, 190 };
+
+char servername[] ="test.mosquitto.org";
+char topicNamePublish[] = "alarmpaneltopic/1";
+char topicNameReceive[] = "alarmpaneltopic/2";
+char messageBuffer[512];
+
+EthernetClient ethClient;
+int state = 0;
+
+void callback(char* topic, byte* payload, unsigned int length) {
+    state = !state;
+    digitalWrite(9, !state ? HIGH : LOW );
+    char auxBuffer[20];
+        
+    memset(auxBuffer, 0x00, sizeof(auxBuffer));
+    memcpy(auxBuffer, payload, length);
+       
+    memset(messageBuffer, 0x00, sizeof(messageBuffer));
+    sprintf( messageBuffer, "!CBK:[%s][%s]", topic, auxBuffer );  
+    debug_protocol(messageBuffer);
     
-    PCintPort::detachInterrupt(0);
-    PCintPort::attachInterrupt(0, &fallingEdgeCall, FALLING); //RISING,FALLING, CHANGE
-}
-
-void fallingEdgeCall() {  
-    pulseTime = micros() - pulseStart;
-    pulseInDetected = true;
+    // Enable Debug
+    if ( strcmp("debug_on",auxBuffer ) == 0 ) {
+       vista20p.attach_debug(debug_protocol);
+    // Disable Debug
+    } else if ( strcmp("debug_off",auxBuffer ) == 0 ) {
+       vista20p.deattach_debug();
+    // Enable Status
+    } else if ( strcmp("status_on",auxBuffer ) == 0 ) {
+       vista20p.attach_status(status_upated);
+    // Disable Status
+    } else if ( strcmp("status_off",auxBuffer ) == 0 ) {
+       vista20p.attach_status( NULL );
+    // Enable Display
+    } else if ( strcmp("display_on",auxBuffer ) == 0 ) {
+       vista20p.attach_display(message_ready);
+    // Disable Display
+    } else if ( strcmp("display_off",auxBuffer ) == 0 ) {
+       vista20p.attach_display( NULL );
+    // Enable RFX Messages
+    } else if ( strcmp("rfx_on",auxBuffer ) == 0 ) {
+       vista20p.attach_f9(message_f9);
+    // Disable RFX Messages
+    } else if ( strcmp("rfx_off",auxBuffer ) == 0 ) {
+       vista20p.attach_f9( NULL );
+    }     
     
-    PCintPort::detachInterrupt(0);
+    characterToSend = '*';
+    vista20p.request_to_send();
 }
 
-void detectPulse() {
-      pulseStart = 0;
-      pulseTime = 0;
-      pulseInDetected = false;
-      PCintPort::detachInterrupt(0);
-      PCintPort::attachInterrupt(0, &risingEdgeCall, RISING); //RISING,FALLING, CHANGE
-}
-
-
-
-void writeAdrress() {
-      micros();
-      PCintPort::detachInterrupt(0);
-      PCintPort::attachInterrupt(0, &writeOnRisingEdge, RISING); //RISING,FALLING, CHANGE
-}
-
-void writeOnRisingEdge() {
-      micros();
-      PCintPort::detachInterrupt(0);
-      PCintPort::attachInterrupt(0, &writeOnFalingEdge, FALLING); //RISING,FALLING, CHANGE
-}
-
-void writeOnFalingEdge() {
-      Serial.write( addressCharacters[ addressCount ] );
-      addressCount++;
-      
-      if ( addressCount != 3 ) {
-        writeAdrress();
-        //PCintPort::detachInterrupt(0);
-        //PCintPort::attachInterrupt(0, &writeOnFalingEdge, FALLING); //RISING,FALLING, CHANGE
-      } else {
-        PCintPort::detachInterrupt(0);
-        Serial.begin(4800,SERIAL_8E2);
-        addressCount = 0;
-      }
-}
+PubSubClient client(servername, 1883, callback, ethClient);
 
 void setup() {
-  Serial.begin(4800,SERIAL_8E2);
-  myAdemcoSerial.begin(4800);
-  myAdemcoSerial.println("Setup");
+  pinMode(9, OUTPUT);
+  digitalWrite(9, HIGH);
+  Ethernet.begin(mac, ip);
   
+  Serial.begin(4800,SERIAL_8N2);
+ 
   //vista20p.attach_display(message_ready);
   //vista20p.attach_status(status_upated);
-  vista20p.attach_debug(debug_protocol);
+  //vista20p.attach_f9(message_f9);
+  //vista20p.attach_debug(debug_protocol);
+  
   //vista20p.attach_unknown_message(debug_unknown); 
-  //vista20p.attach_clear_to_send(send_to_keypad);
+  vista20p.attach_clear_to_send(send_to_keypad);  
   
 }
 
 void loop() {
+    
     vista20p.handleEvents();        
     
-    
-    if ( myAdemcoSerial.available() ) {
-        characterToSend = myAdemcoSerial.read();
-        
-        if ( characterToSend == '1' ) {
-          characterToSend = 0x01;
-        } else if ( characterToSend == '2' ) {
-          characterToSend = 0x02;
-        } else if ( characterToSend == '3' ) {
-          characterToSend = 0x03;
-        } else if ( characterToSend == '4' ) {
-          characterToSend = 0x04;
-        } else if ( characterToSend == '5' ) {
-          characterToSend = 0x05;
-        } else if ( characterToSend == '6' ) {
-          characterToSend = 0x06;
-        } else if ( characterToSend == '7' ) {
-          characterToSend = 0x07;
-        } else if ( characterToSend == '8' ) {
-          characterToSend = 0x08;
-        } else if ( characterToSend == '9' ) {
-          characterToSend = 0x09;
-        } else if ( characterToSend == '0' ) {
-          characterToSend = 0x00;
-        }
-      
-      //detectPulse(); 
-      vista20p.request_to_send();
+    if (!client.connected()) {    
+        client.connect(clientName);
+        client.publish(topicNamePublish,"Connected");
+        client.subscribe(topicNameReceive);
     }
     
-    
-    if ( pulseInDetected == true ) {
-      pulseInDetected = false;    
-    
-      if ( pulseTime > 12 * 1000 ) {   
-        addressCount = 0;
-        
-        Serial.begin(4800,SERIAL_8N2);     
-        Serial.write( addressCharacters[addressCount] );
-              
-        addressCount = 1;
-        
-        writeAdrress();
-        //PCintPort::detachInterrupt(0);
-        //PCintPort::attachInterrupt(0, &writeOnFalingEdge, FALLING); //RISING,FALLING, CHANGE
-
-      } else {
-        detectPulse();  
-      }    
-    
-    }
-    
+    client.loop();
 }
 
 void message_ready(Display_Handler mensaje) {
-  myAdemcoSerial.println();
-  myAdemcoSerial.print( mensaje.to_string() );     
+  if (client.connected() ) {      
+      mensaje.to_string(messageBuffer);
+      client.publish(topicNamePublish,messageBuffer);
+  }
 }
 
 void status_upated(Status_Handler new_status) {
-  myAdemcoSerial.println();
-  myAdemcoSerial.print( new_status.to_string() );     
+  if (client.connected() ) {
+      new_status.to_string(messageBuffer);
+      client.publish(topicNamePublish,messageBuffer);
+  }
+}
+
+void message_f9(Msg9e_Handler new_message) {
+  if (client.connected() ) {
+      new_message.to_string(messageBuffer);
+      client.publish(topicNamePublish,messageBuffer);
+  }
 }
 
 void debug_protocol(char *mensaje) {
-  myAdemcoSerial.println();
-  myAdemcoSerial.print( mensaje );     
+  if (client.connected() ) {      
+      client.publish(topicNamePublish,mensaje);
+  }    
 }
 
 void debug_unknown(char *mensaje) {
-  myAdemcoSerial.write( mensaje );     
+  if (client.connected() ) {      
+      client.publish(topicNamePublish,mensaje);
+  }  
 }
 
 char send_to_keypad() {
     return characterToSend;
 }
+
 
 

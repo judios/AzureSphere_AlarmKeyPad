@@ -189,8 +189,7 @@ int Display_Handler::get_check_sum() {
     return buffer[F7_MESSAGE_LEN-1];
 }
 
-char * Display_Handler::to_string() {
-  char intBuffer[128];
+void Display_Handler::to_string(char *intBuffer) {
   char auxBuffer[8];
   
   memset(intBuffer, 0x00, sizeof(intBuffer));
@@ -221,5 +220,4 @@ char * Display_Handler::to_string() {
   strncat(intBuffer, get_display_message(),32 ); //73
   strcat(intBuffer, "\""); //74
   
-  return intBuffer;
 }

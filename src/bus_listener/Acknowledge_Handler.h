@@ -30,7 +30,7 @@ class Acknowledge_Handler : public Event_Handler {
         virtual int handle_event (char et);
         void reset();
         int get_ack_address();
-        virtual char * to_string();
+        virtual void to_string(char *);
     private:
         char buffer[F6_MESSAGE_LEN+1];
 };

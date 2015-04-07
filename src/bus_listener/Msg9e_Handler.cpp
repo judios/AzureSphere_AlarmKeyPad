@@ -36,7 +36,7 @@ void Msg9e_Handler::reset() {
 }
 
 /* 
- * Reads from the serial port 9E message
+ * Reads from the serial port F9 message
  */
 int Msg9e_Handler::handle_event(char et) {
     reset();    
@@ -49,14 +49,14 @@ int Msg9e_Handler::handle_event(char et) {
 /* 
  * String representation of the message
  */
-char * Msg9e_Handler::to_string() {
-    char auxBuffer[32];
-    memset(auxBuffer, 0x00, sizeof(auxBuffer));
-
-    //sprintf( auxBuffer, "!M9E:" ); 
-    //for ( int i = 1 ; i< F9E_MESSAGE_LEN+1; i++ ) {
-    //    sprintf( auxBuffer, "[%02x]", buffer[i] ); 
-    //}
-       
-    return auxBuffer;
+void Msg9e_Handler::to_string(char *intBuffer) {
+    memset(intBuffer, 0x00, sizeof(intBuffer));
+    sprintf( intBuffer, "!M9E:" ); 
+    char auxBuffer[8];
+    
+    for ( int i = 0 ; i< 7; i++ ) {        
+        sprintf( auxBuffer, "[%02x]", buffer[i] ); 
+        strcat(intBuffer, auxBuffer );
+    }
+   
 }

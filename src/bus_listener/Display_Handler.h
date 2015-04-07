@@ -71,7 +71,7 @@ class Display_Handler : public Event_Handler {
         int get_prompt_position();
         char* get_display_message();
         int get_check_sum();
-        virtual char * to_string();
+        virtual void to_string(char *);
     private:
         char buffer[F7_MESSAGE_LEN+1];        
 };

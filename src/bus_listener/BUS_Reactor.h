@@ -19,9 +19,7 @@
 #ifndef BUS_REACTOR_h
 #define BUS_REACTOR_h
 
-
 #include "Arduino.h"
-#include "SoftwareSerial2.h"
 #include "Event_Handler.h"
 #include "Acknowledge_Handler.h"
 #include "Display_Handler.h"
@@ -30,27 +28,31 @@
 
 extern "C" {
     // callback function for Display Messages
-    typedef void (*ademcoDisplayCallback)(Display_Handler);
+    typedef void (*panelDisplayCallback)(Display_Handler);
 }
 
 extern "C" {
     // callback function for Status updated Messages
-    typedef void (*ademcoStatusCallback)(Status_Handler);
+    typedef void (*panelStatusCallback)(Status_Handler);
+}
+
+extern "C" {
+    // callback function for Status updated Messages
+    typedef void (*panelF9Callback)(Msg9e_Handler);
 }
 
 extern "C" {
     // callback function to allow send to bus
-    typedef char (*ademcoClearToSendCallback)();
+    typedef char (*panelClearToSendCallback)();
 }
 
 extern "C" {
     // callback function to allow send to bus
-    typedef void (*ademcoUnknownCallback)(char *);
+    typedef void (*panelUnknownCallback)(char *);
 }
 
 class BUS_Reactor {
 private:
-    SoftwareSerial2 *myAdemco;
     HardwareSerial *myAdemcoHardware;
 
     // Serial Handlers
@@ -61,44 +63,39 @@ private:
 
     // Notification methods
     void on_acknowledge();
-    Stream * getSerialHandler();
+    HardwareSerial * getSerialHandler();
+    unsigned long pulseInBUS(uint8_t pin, uint8_t state);
+    
 
     // Callbacks references
-    ademcoStatusCallback callbackStatus;
-    ademcoDisplayCallback callbackDisplay;
-    ademcoClearToSendCallback callbackCTS;
-    ademcoDebugProtocolCallback debugCallback;
-    ademcoUnknownCallback callbackUnknown;
+    panelStatusCallback callbackStatus;
+    panelDisplayCallback callbackDisplay;
+    panelClearToSendCallback callbackCTS;
+    panelDebugProtocolCallback debugCallback;
+    panelUnknownCallback callbackUnknown;
+    panelF9Callback callbackF9;
 
     // Flag to track send request
     boolean wantToSend;
-    boolean softwareSerial;
     
     // Internal Device Address
     int device_address;
     
     int sequence;
     
-    
-    // Utility Methods
-    void addHandlers(Stream *myAdemco);
-    
-    static void risingEdgeCall();
-    static void fallingEdgeCall();
-    void detectPulse();
-    
+
 public:
   // public methods
-  BUS_Reactor(SoftwareSerial2 *, int device_address);
   BUS_Reactor(HardwareSerial *,int device_address);
   ~BUS_Reactor();
   void handleEvents();
   void request_to_send();
-  void attach_display(ademcoDisplayCallback displayCallback);
-  void attach_status(ademcoStatusCallback statusCallback);
-  void attach_debug(ademcoDebugProtocolCallback debugCallback);
-  void attach_clear_to_send(ademcoClearToSendCallback ctsCallback);
-  void attach_unknown_message(ademcoUnknownCallback unknownCallback);
+  void attach_display(panelDisplayCallback displayCallback);
+  void attach_status(panelStatusCallback statusCallback);
+  void attach_f9(panelF9Callback callbackF9);
+  void attach_debug(panelDebugProtocolCallback debugCallback);// TODO fix
+  void attach_clear_to_send(panelClearToSendCallback ctsCallback);
+  void attach_unknown_message(panelUnknownCallback unknownCallback);
   void deattach_debug();
 };
 

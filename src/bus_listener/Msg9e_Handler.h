@@ -22,14 +22,14 @@
 
 #include "Event_Handler.h"
 
-int const F9E_MESSAGE_LEN = 5;
+int const F9E_MESSAGE_LEN = 6;
 
 class Msg9e_Handler : public Event_Handler {
     public:
         Msg9e_Handler();
         virtual int handle_event (char et);
         void reset();
-        virtual char * to_string();
+        virtual void to_string(char *);
     private:
         char buffer[F9E_MESSAGE_LEN*4];
 };

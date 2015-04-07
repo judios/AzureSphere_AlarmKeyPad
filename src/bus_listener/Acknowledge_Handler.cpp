@@ -55,8 +55,7 @@ int Acknowledge_Handler::get_ack_address() {
 /* 
  * String representation of the message
  */
-char * Acknowledge_Handler::to_string() {
-    char auxBuffer[16];
+void Acknowledge_Handler::to_string(char *auxBuffer) {
     sprintf( auxBuffer, "!ACK:[%d]", get_ack_address() );
-    return auxBuffer;
+
 }

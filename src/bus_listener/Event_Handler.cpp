@@ -86,7 +86,7 @@ int Event_Handler::read_chars_dyn(char *bufferHex) {
 }
 
 void Event_Handler::on_debug( char *bufferHex, int bufferSize ) {
-    char debugMessage[512];
+    char debugMessage[520];
     char auxBuffer[16];
         
     memset(auxBuffer, 0x00, sizeof(auxBuffer));
@@ -103,7 +103,8 @@ void Event_Handler::on_debug( char *bufferHex, int bufferSize ) {
     }
 }
 
-void Event_Handler::enable_debug(ademcoDebugProtocolCallback callbackDebugProtocolParam) {
+
+void Event_Handler::enable_debug(panelDebugProtocolCallback callbackDebugProtocolParam) {
   callbackDebugProtocol = callbackDebugProtocolParam;
   debugProtocol = true;
 }

@@ -24,27 +24,27 @@
 int const F2_STATUS_EVENT = 0xFFF2;
 int const F6_ACK_EVENT = 0xFFF6;
 int const F7_DISPLAY_EVENT = 0xFFF7;
-int const F9E_UNK_EVENT = 0xFF9E;
+int const F9E_UNK_EVENT = 0xFFF9;
 
 extern "C" {
     // callback function for Status updated Messages
-    typedef void (*ademcoDebugProtocolCallback)(char *);
+    typedef void (*panelDebugProtocolCallback)(char *);
 }
 
 class Event_Handler {
 private:
   Stream *myAdemco;
   boolean debugProtocol;
-  ademcoDebugProtocolCallback callbackDebugProtocol;
+  panelDebugProtocolCallback callbackDebugProtocol;
 protected:
   void read_chars(int ct, char *bufferHex );
   int read_chars_dyn(char *bufferHex);
 public:
   Event_Handler();
   virtual int handle_event (char et) = 0;
-  virtual char * to_string() = 0;
+  virtual void to_string(char *) = 0;
   void on_debug(char *, int );
-  void enable_debug(ademcoDebugProtocolCallback callbackDebugProtocol);
+  void enable_debug(panelDebugProtocolCallback callbackDebugProtocol);
   void disable_debug();
   void set_serial_handler(Stream *myAdemco);
 };

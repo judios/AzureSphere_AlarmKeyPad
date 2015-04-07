@@ -1,40 +1,31 @@
 # VISTA ICM Replacement
 This project is designed to allow you to connect an Arduino-like device to your Honeywell (Ademco) security panel and "listen in" for key events.  This project is an implemenation of reverse engineering the Ademco ECP keypad bus.
 
-#Config SoftwareSerial
-```c
-#define ADEMCO_RX 7
-#define ADEMCO_TX 6
-#define DEVICE_ADDRESS 19
-
-SoftwareSerial myAdemcoSerial(ADEMCO_RX,ADEMCO_TX);
-BUS_Reactor vista20p(&myAdemcoSerial, DEVICE_ADDRESS)
-```
 
 #Config HardwareSerial
 ```c
 #define DEVICE_ADDRESS 19
 
-HardwareSerial *myAdemcoSerial = &Serial1;
-BUS_Reactor vista20p(&myAdemcoSerial, DEVICE_ADDRESS)
+HardwareSerial *myPanelSerial = &Serial1;
+BUS_Reactor vista20p(&myPanelSerial, DEVICE_ADDRESS)
 ```
 
 #Hardware Setup Read Only Interface
-Connect the data-out wire (yellow) to a max232 (Pin 8) or level shifter and put the output of this (Pin 9) to pin 7 on the Arduino. 
+Connect the data-out wire (yellow) to a max232 (Pin 8) or level shifter and put the output of this (Pin 9) to pin 0(RX) on the Arduino. 
 
                  Read Only Interface               |   Arduino    
                                                    |             
     +---------+               +----------+         |  +--------+ 
     |         | Yellow Wire   |  MAX232  |TTL      |  |        | 
-    | Ademco  |-------------->|8        9|---------|->|7       | 
+    | Ademco  |-------------->|8        9|---------|->|0(RX)   | 
     |Vista 20P| 12V           |          | 5V      |  |        | 
     |  Panel  |               |          |         |  |        | 
     |         |               |          |         |  |        | 
     +---------+               +----------+         |  +--------+ 
                                                    |             
                      
-#Hardware Setup Write Interface (Not Tested and Under Development)
-Connect the data-in wire (green) to an optocoupler 4N25 (Pin 5) and put the input of it (Pin 1) to pin 6 on the Arduino.
+#Hardware Setup Write Interface (Still Under Development)
+Connect the data-in wire (green) to an optocoupler 4N25 (Pin 5) and put the input of it (Pin 1) to pin 1(TX) on the Arduino.
 
                  Write Interface                     |   Arduino    
                                                      |
@@ -45,7 +36,7 @@ Connect the data-in wire (green) to an optocoupler 4N25 (Pin 5) and put the inpu
                            |                         |             
     +---------+            |  +----------+           |  +--------+ 
     |         | Green Wire |  |   4N25   |   380 Ohms|  |        | 
-    | Ademco  |<-----------+--|5        1|<---\/\/\/\---|6       | 
+    | Ademco  |<-----------+--|5        1|<---\/\/\/\---|1(TX)   | 
     |Vista 20P|               |          |           |  |        | 
     |  Panel  |               |          |           |  |        | 
     |         |          +----|4        2|---+       |  |        | 
@@ -54,6 +45,31 @@ Connect the data-in wire (green) to an optocoupler 4N25 (Pin 5) and put the inpu
                          |                   |
                          +----------------- GND
 
+
+##Current address write status
+
+Real keypad address 19: 
+![alt text](https://github.com/matlock08/homesecurity/tree/master/docs/panelKeypad19OK.png "Keypad addr 19")
+
+Arduino address 19: 
+![alt text](https://github.com/matlock08/homesecurity/tree/master/docs/arduinoKeypad19OK.png "Arduino addr 19")
+
+#MQTT
+This sketch is publishing changes to a free mqtt server (test.mosquito.org) you can subscribe to the same same topic on a android phone
+width a mqtt client like [MyMQTT](https://play.google.com/store/apps/details?id=at.tripwire.mqtt.client&hl=en) 
+
+Arduino currently suports the below commands
+Command | Description
+------------ | -------------
+debug_on  | Enable all debug very verbose
+debug_off  | Disable all debug messages
+display_on  | Enable F7 Messages decode publish
+display_off  | Disable F7 publish
+status_on  | Enable F2 Messages decode publish
+status_off  | Disable F2 publish
+rfx_on  | Enable F9 Messages
+rfx_off  | Disable F9
+ 
 
 #Protocol
 Essentially, the data out wire uses 8-bit, even parity, 1 stop bit, inverted, NRZ +12 volt TTL signals.  But, the data out wire also acts somewhat like a clock wire sometimes.  
@@ -80,6 +96,17 @@ In order to get perfect AND logic from multiple devices sending pulses at the sa
     (high)---\___(10ms low)___/---\______/---\_______/---\_____  (Yellow data-out)
     
     __________________________/\_________/\__________/\_/\_____  (0xFF, 0xFF, 0xEF) (Green data-in)
+
+
+                                LSB                         MSB
+    			        1248 1248  1248 1248  1248 1248
+Address - 16    FF,FF,FE        1111 1111  1111 1111  0111 1111
+Address - 17	FF,FF,FD	1111 1111  1111 1111  1011 1111
+Address - 18	FF,FF,FB	1111 1111  1111 1111  1101 1111
+Address - 19	FF,FF,F7	1111 1111  1111 1111  1110 1111 
+Address - 20	FF,FF,EF	1111 1111  1111 1111  1111 0111
+Address - 21	FF,FF,DF  	1111 1111  1111 1111  1111 1011
+Address - 22	FF,FF,BF  	1111 1111  1111 1111  1111 1101
 
 #License
 This project uses some parts of Arduino IDE - specifically the SoftwareSerial library.  So, whatever license that is under, this project is under (for the time being).
