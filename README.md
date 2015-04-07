@@ -48,27 +48,29 @@ Connect the data-in wire (green) to an optocoupler 4N25 (Pin 5) and put the inpu
 
 ##Current address write status
 
-Real keypad address 19: 
-![alt text](https://github.com/matlock08/homesecurity/tree/master/docs/panelKeypad19OK.png "Keypad addr 19")
+Real keypad address 19:
+ 
+![alt text](https://raw.githubusercontent.com/matlock08/homesecurity/master/docs/panelKeypad19OK.png "Keypad addr 19")
 
 Arduino address 19: 
-![alt text](https://github.com/matlock08/homesecurity/tree/master/docs/arduinoKeypad19OK.png "Arduino addr 19")
+![alt text](https://raw.githubusercontent.com/matlock08/homesecurity/master/docs/arduinoKeypad19OK.png "Arduino addr 19")
 
 #MQTT
 This sketch is publishing changes to a free mqtt server (test.mosquito.org) you can subscribe to the same same topic on a android phone
 width a mqtt client like [MyMQTT](https://play.google.com/store/apps/details?id=at.tripwire.mqtt.client&hl=en) 
 
 Arduino currently suports the below commands
-Command | Description
------------- | -------------
-debug_on  | Enable all debug very verbose
-debug_off  | Disable all debug messages
-display_on  | Enable F7 Messages decode publish
-display_off  | Disable F7 publish
-status_on  | Enable F2 Messages decode publish
-status_off  | Disable F2 publish
-rfx_on  | Enable F9 Messages
-rfx_off  | Disable F9
+
+| Command        | Description  |
+| ------------- |:-------------:|
+| debug_on  | Enable all debug very verbose |
+| debug_off  | Disable all debug messages |
+| display_on  | Enable F7 Messages decode publish |
+| display_off  | Disable F7 publish |
+| status_on  | Enable F2 Messages decode publish |
+| status_off  | Disable F2 publish |
+| rfx_on  | Enable F9 Messages |
+| rfx_off  | Disable F9 |
  
 
 #Protocol
@@ -97,7 +99,7 @@ In order to get perfect AND logic from multiple devices sending pulses at the sa
     
     __________________________/\_________/\__________/\_/\_____  (0xFF, 0xFF, 0xEF) (Green data-in)
 
-
+```c
                                 LSB                         MSB
     			        1248 1248  1248 1248  1248 1248
 Address - 16    FF,FF,FE        1111 1111  1111 1111  0111 1111
@@ -107,7 +109,7 @@ Address - 19	FF,FF,F7	1111 1111  1111 1111  1110 1111
 Address - 20	FF,FF,EF	1111 1111  1111 1111  1111 0111
 Address - 21	FF,FF,DF  	1111 1111  1111 1111  1111 1011
 Address - 22	FF,FF,BF  	1111 1111  1111 1111  1111 1101
-
+```
 #License
 This project uses some parts of Arduino IDE - specifically the SoftwareSerial library.  So, whatever license that is under, this project is under (for the time being).
 
