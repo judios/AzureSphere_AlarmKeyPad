@@ -48,7 +48,7 @@ extern "C" {
 
 extern "C" {
     // callback function to allow send to bus
-    typedef void (*panelUnknownCallback)(char *);
+    typedef void (*panelDebugProtocolCallback)(char *);
 }
 
 class BUS_Reactor {
@@ -72,7 +72,6 @@ private:
     panelDisplayCallback callbackDisplay;
     panelClearToSendCallback callbackCTS;
     panelDebugProtocolCallback debugCallback;
-    panelUnknownCallback callbackUnknown;
     panelF9Callback callbackF9;
 
     // Flag to track send request
@@ -93,9 +92,8 @@ public:
   void attach_display(panelDisplayCallback displayCallback);
   void attach_status(panelStatusCallback statusCallback);
   void attach_f9(panelF9Callback callbackF9);
-  void attach_debug(panelDebugProtocolCallback debugCallback);// TODO fix
+  void attach_debug(panelDebugProtocolCallback debugCallback);
   void attach_clear_to_send(panelClearToSendCallback ctsCallback);
-  void attach_unknown_message(panelUnknownCallback unknownCallback);
   void deattach_debug();
 };
 

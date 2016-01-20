@@ -59,3 +59,8 @@ void Acknowledge_Handler::to_string(char *auxBuffer) {
     sprintf( auxBuffer, "!ACK:[%d]", get_ack_address() );
 
 }
+
+void Acknowledge_Handler::debug_to_string(char *intBuffer) {
+  memset(intBuffer, 0x00, sizeof(intBuffer));
+  memcpy(intBuffer, buffer, F6_MESSAGE_LEN);
+}

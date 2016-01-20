@@ -55,7 +55,8 @@ class Status_Handler : public Event_Handler {
         int get_by_pass();
         int get_fault();
         int get_count_down();
-        void to_string(char *);
+        virtual void to_string(char *);
+        virtual void debug_to_string(char *);
     private:
         char buffer[F2_MAX_MESSAGE_LEN+1];
         int readSize;

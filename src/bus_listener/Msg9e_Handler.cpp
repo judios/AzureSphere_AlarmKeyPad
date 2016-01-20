@@ -60,3 +60,10 @@ void Msg9e_Handler::to_string(char *intBuffer) {
     }
    
 }
+
+void Msg9e_Handler::debug_to_string(char *intBuffer) {
+  memset(intBuffer, 0x00, sizeof(intBuffer));
+  memcpy(intBuffer, buffer, F9E_MESSAGE_LEN);
+}
+
+

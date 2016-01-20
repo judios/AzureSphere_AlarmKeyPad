@@ -26,16 +26,9 @@ int const F6_ACK_EVENT = 0xFFF6;
 int const F7_DISPLAY_EVENT = 0xFFF7;
 int const F9E_UNK_EVENT = 0xFFF9;
 
-extern "C" {
-    // callback function for Status updated Messages
-    typedef void (*panelDebugProtocolCallback)(char *);
-}
-
 class Event_Handler {
 private:
   Stream *myAdemco;
-  boolean debugProtocol;
-  panelDebugProtocolCallback callbackDebugProtocol;
 protected:
   void read_chars(int ct, char *bufferHex );
   int read_chars_dyn(char *bufferHex);
@@ -43,9 +36,7 @@ public:
   Event_Handler();
   virtual int handle_event (char et) = 0;
   virtual void to_string(char *) = 0;
-  void on_debug(char *, int );
-  void enable_debug(panelDebugProtocolCallback callbackDebugProtocol);
-  void disable_debug();
+  virtual void debug_to_string(char *) = 0;
   void set_serial_handler(Stream *myAdemco);
 };
 

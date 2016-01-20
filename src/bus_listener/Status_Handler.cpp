@@ -182,3 +182,7 @@ void Status_Handler::to_string(char *internalBuffer) {
 
 }
 
+void Status_Handler::debug_to_string(char *intBuffer) {
+  memset(intBuffer, 0x00, sizeof(intBuffer));
+  memcpy(intBuffer, buffer, F2_MAX_MESSAGE_LEN);
+}

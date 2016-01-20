@@ -69,9 +69,10 @@ class Display_Handler : public Event_Handler {
         boolean get_entry_delay_off();
         boolean get_perimeter_only();        
         int get_prompt_position();
-        char* get_display_message();
+        void get_display_message(char *);
         int get_check_sum();
         virtual void to_string(char *);
+        virtual void debug_to_string(char *);
     private:
         char buffer[F7_MESSAGE_LEN+1];        
 };

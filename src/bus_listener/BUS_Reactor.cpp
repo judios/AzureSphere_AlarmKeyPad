@@ -252,7 +252,7 @@ void BUS_Reactor::handleEvents() {
 
 
 void BUS_Reactor::request_to_send() {
-    getSerialHandler()->begin(4800,SERIAL_8N2);
+    //getSerialHandler()->begin(4800,SERIAL_8N2);
     wantToSend = true;
 }
 
@@ -272,10 +272,10 @@ void BUS_Reactor::attach_debug(panelDebugProtocolCallback debugCallbackParam) {
     debugCallback = debugCallbackParam;
     
     if ( debugCallback != NULL ) {
-        acknowledgeHandler.enable_debug( debugCallback );
-        statusHandler.enable_debug( debugCallback );
-        displayHandler.enable_debug( debugCallback );
-        unkHandler.enable_debug( debugCallback );
+        //acknowledgeHandler.enable_debug( debugCallback );
+        //statusHandler.enable_debug( debugCallback );
+        //displayHandler.enable_debug( debugCallback );
+        //unkHandler.enable_debug( debugCallback );
     }
 }
 
@@ -283,13 +283,7 @@ void BUS_Reactor::attach_clear_to_send(panelClearToSendCallback ctsCallback) {
     callbackCTS = ctsCallback;
 }
 
-void BUS_Reactor::attach_unknown_message(panelUnknownCallback unknownCallback) {
-    callbackUnknown = unknownCallback;
-}
 
 void BUS_Reactor::deattach_debug() {
-    acknowledgeHandler.disable_debug();
-    statusHandler.disable_debug();
-    displayHandler.disable_debug();
-    unkHandler.disable_debug();
+    // debugCallback = NULL;
 }

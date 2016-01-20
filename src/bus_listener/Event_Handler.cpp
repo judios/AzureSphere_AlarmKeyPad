@@ -23,7 +23,7 @@
  * Constructor 
  */
 Event_Handler::Event_Handler() {
-  debugProtocol = false;
+
 }
 
 
@@ -46,9 +46,6 @@ void Event_Handler::read_chars(int ct, char *bufferHex ) {
   }
   bufferHex[x] = '\0';    
   
-  if ( debugProtocol == true ) {  
-    on_debug( bufferHex, ct );
-  }
 }
 
 /*
@@ -78,41 +75,10 @@ int Event_Handler::read_chars_dyn(char *bufferHex) {
   }
   
   x++;
-  
-  if ( debugProtocol == true ) {
-    on_debug(bufferHex, x );
-  }
+    
   return x;
 }
 
-void Event_Handler::on_debug( char *bufferHex, int bufferSize ) {
-    char debugMessage[520];
-    char auxBuffer[16];
-        
-    memset(auxBuffer, 0x00, sizeof(auxBuffer));
-    memset(debugMessage, 0x00, sizeof(debugMessage));
-    
-    strcat( debugMessage, "!DBG:");    
-    for ( int i = 0; i < bufferSize ; i++) {
-        sprintf( auxBuffer, "[%02x]", bufferHex[i] );
-        strcat( debugMessage, auxBuffer);      
-    }
-    
-    if ( callbackDebugProtocol != NULL ) {
-        (*callbackDebugProtocol)(debugMessage);
-    }
-}
-
-
-void Event_Handler::enable_debug(panelDebugProtocolCallback callbackDebugProtocolParam) {
-  callbackDebugProtocol = callbackDebugProtocolParam;
-  debugProtocol = true;
-}
- 
-void Event_Handler::disable_debug() {
-  callbackDebugProtocol = NULL;
-  debugProtocol = false;
-}
 
 void Event_Handler::set_serial_handler(Stream *myAdemcoSerial) {
     myAdemco = myAdemcoSerial;

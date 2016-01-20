@@ -169,9 +169,8 @@ int Display_Handler::get_prompt_position() {
 /* represents the display message on screen
  * return the string representation with non printable chars changed to @
  */
-char* Display_Handler::get_display_message() {
-    char displayMessage[33];
-    
+void Display_Handler::get_display_message(char *displayMessage) {
+        
     memset(displayMessage, 0x00, sizeof(displayMessage));
 
     for ( int i = 12 ; i< 44; i++ ) {
@@ -179,10 +178,9 @@ char* Display_Handler::get_display_message() {
         displayMessage[i-12] = buffer[i];
       } else {
         displayMessage[i-12] = 0x40;
-      }      
+      } 
     }
-    
-    return displayMessage;
+        
 }
 
 int Display_Handler::get_check_sum() {
@@ -190,7 +188,8 @@ int Display_Handler::get_check_sum() {
 }
 
 void Display_Handler::to_string(char *intBuffer) {
-  char auxBuffer[8];
+  char auxBuffer[35];
+  char zoneBuffer[5];
   
   memset(intBuffer, 0x00, sizeof(intBuffer));
 
@@ -214,10 +213,17 @@ void Display_Handler::to_string(char *intBuffer) {
   strcat(intBuffer, (get_perimeter_only() ? "1" : "0"));    // PERIMETER ONLY (ARMED STAY/NIGHT)
   
   strcat(intBuffer, "----],");
-  sprintf( auxBuffer, "%03x,", get_zone_field() );
-  strcat (intBuffer, auxBuffer);
-  strcat(intBuffer, ",\""); //41
-  strncat(intBuffer, get_display_message(),32 ); //73
+  sprintf( zoneBuffer, "%03x,", get_zone_field() );
+  strcat (intBuffer, zoneBuffer);
+  strcat(intBuffer, "\""); //41  
+  get_display_message(auxBuffer);
+  strcat(intBuffer, auxBuffer ); //73
   strcat(intBuffer, "\""); //74
   
 }
+
+void Display_Handler::debug_to_string(char *intBuffer) {
+  memset(intBuffer, 0x00, sizeof(intBuffer));
+  memcpy(intBuffer, buffer, F7_MESSAGE_LEN);
+}
+
