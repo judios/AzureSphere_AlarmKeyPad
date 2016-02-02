@@ -121,15 +121,10 @@ void Status_Handler::to_string(char *internalBuffer) {
     
     strcat(internalBuffer, "!AUI:");
     
-    sprintf( auxBuffer, "%02x", readSize );
+    sprintf( auxBuffer, "%02x", readSize ); //
     strcat(internalBuffer, auxBuffer);
         
-    for (int x = 1; x < readSize && x < F2_MAX_MESSAGE_LEN ; x++ ) {
-        sprintf( auxBuffer, "%02x", buffer[x] );
-        strcat(internalBuffer, auxBuffer);
-    }
-    
-    // Armed startPosition
+    // Armed startPosition 17
     if ( get_state() == F2_BYTE1_STATE_DISARMED ) {
       strcat(internalBuffer, " DISARMED:");
     } else if ( get_state() == F2_BYTE1_STATE_ARMED ) {
@@ -140,15 +135,14 @@ void Status_Handler::to_string(char *internalBuffer) {
       strcat(internalBuffer, " BUSY:");
     }  
    
-    // Armed Mode startPosition+1
+    // Armed Mode startPosition+1 23
     if ( get_armed_mode() == F2_BYTE2_ARMED_MODE_STAY ) {
       strcat(internalBuffer, " STAY:");
     } else if ( get_armed_mode() == F2_BYTE2_ARMED_MODE_AWAY ) {
       strcat(internalBuffer, " AWAY:");
-    }    
+    }        
     
-    
-    // Fault startPosition+3
+    // Fault startPosition+3 38
         
     if ( get_fault() == F2_BYTE4_FAULT_NORMAL ) {
       strcat(internalBuffer, " NORMAL:");
@@ -156,21 +150,21 @@ void Status_Handler::to_string(char *internalBuffer) {
       strcat(internalBuffer, " COUNTING_EXIT ");
       
       if ( get_count_down() != -1 ) {
-          sprintf( auxBuffer, "%d", get_count_down() );
+          sprintf( auxBuffer, "%d", get_count_down() ); //39
           strcat(internalBuffer, auxBuffer);
       }
       
-      strcat(internalBuffer, ":");
+      strcat(internalBuffer, ":"); //40
       
     } else if ( get_fault() == F2_BYTE4_FAULT_COUNTING_ENTER ) {
       strcat(internalBuffer, " COUNTING_ENTER ");
       
       if ( get_count_down() != -1 ) {
-          sprintf( auxBuffer, "%d", get_count_down() );
+          sprintf( auxBuffer, "%d", get_count_down() ); //39
           strcat(internalBuffer, auxBuffer);
       }
       
-      strcat(internalBuffer, ":");
+      strcat(internalBuffer, ":"); //40
       
     
     } else if ( get_fault() == F2_BYTE4_FAULT_ALARM ) {

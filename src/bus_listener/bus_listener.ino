@@ -35,9 +35,9 @@ char clientName[] = "arduino:mty:90a2da0dd719";
 byte ip[] = {10, 1, 1, 190 };
 
 char servername[] ="test.mosquitto.org";
-char topicNamePublish[] = "alarmpaneltopic/1";
-char topicNameReceive[] = "alarmpaneltopic/2";
-#define BUFFER_LEN 300
+char topicNamePublish[] = "alarmpanel/out";
+char topicNameReceive[] = "alarmpanel/in";
+#define BUFFER_LEN 100
 char messageBuffer[BUFFER_LEN];
 
 EthernetClient ethClient;
@@ -66,7 +66,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
          vista20p.attach_status( NULL );
       // Enable Display
       } else if ( strcmp("display_on",auxBuffer ) == 0 ) {
-         vista20p.attach_display(message_ready);
+         vista20p.attach_display(message_updated);
       // Disable Display
       } else if ( strcmp("display_off",auxBuffer ) == 0 ) {
          vista20p.attach_display( NULL );
@@ -97,7 +97,7 @@ void setup() {
   
   Serial.begin(4800,SERIAL_8N2);
  
-  vista20p.attach_display(message_ready);
+  vista20p.attach_display(message_updated);
   //vista20p.attach_status(status_upated);
   //vista20p.attach_f9(message_f9);
   vista20p.attach_debug(publish_debug_message);
@@ -120,29 +120,40 @@ void loop() {
     client.loop();
 }
 
-// 74 Characters
-void message_ready(Display_Handler mensaje) {
+// 61 Characters
+void message_updated(Display_Handler mensaje) {
   if (client.connected() ) {      
       mensaje.to_string(messageBuffer);
       client.publish(topicNamePublish,messageBuffer);
-
+/*
       if ( debug == true ) {
-         mensaje.debug_to_string(messageBuffer);
-         client.publish(topicNamePublish,messageBuffer);
-      }
+                  
+         mensaje.debug_to_string(auxiliarBuffer); // 45
+
+         memset(messageEncoded, 0x00, sizeof(messageEncoded));
+         
+         for ( int i = 0; i < F7_MESSAGE_LEN; i++) {
+            char auxBuffer[8];
+            sprintf( auxBuffer, "%02x ", auxiliarBuffer[i] );
+            strcat(messageEncoded, auxBuffer);
+         }
+
+         client.publish(topicNamePublish,messageEncoded);
+      }*/
   }
 }
 
-//287 Characters
+//61 Characters
 void status_upated(Status_Handler new_status) {
   if (client.connected() ) {
       new_status.to_string(messageBuffer);
       client.publish(topicNamePublish,messageBuffer);
-
+/*
       if ( debug == true ) {
          new_status.debug_to_string(messageBuffer);
          client.publish(topicNamePublish,messageBuffer);
       }
+      */
   }
 }
 
@@ -151,15 +162,16 @@ void message_f9(Msg9e_Handler new_message) {
   if (client.connected() ) {
       new_message.to_string(messageBuffer);
       client.publish(topicNamePublish,messageBuffer);
-
+/*
       if ( debug == true ) {
          new_message.debug_to_string(messageBuffer);
          client.publish(topicNamePublish,messageBuffer);
       }
+      */
   }
 }
 
-// 517 Characters
+
 void publish_debug_message(char *mensaje) {
   if (client.connected() ) {      
       client.publish(topicNamePublish,mensaje);

@@ -223,7 +223,7 @@ void BUS_Reactor::handleEvents() {
           // SERIAL_8N2 Adress Data should be written 8 Data 2 Stop Bit No Parity      
                   
           // Waits on pin1 for a HIGH value is at least 12 millisec            
-          if ( pulseInBUS( 0, HIGH ) >= 8000 ) {    
+          if ( pulseIn( 0, HIGH ) >= 8000 ) {    
               /*        LSB                       MSB
     			1248 1248 1248 1248 1248 1248
 16      FF,FF,FE        1111 1111 1111 1111 0111 1111
@@ -236,10 +236,10 @@ void BUS_Reactor::handleEvents() {
               */
             
               getSerialHandler()->write( 0xff ); 
-              pulseInBUS( 0, HIGH ); 
+              pulseIn( 0, HIGH ); 
 
               getSerialHandler()->write( 0xff );
-              pulseInBUS( 0, HIGH );
+              pulseIn( 0, HIGH );
                 
               getSerialHandler()->write( 0xf7 ); 
        

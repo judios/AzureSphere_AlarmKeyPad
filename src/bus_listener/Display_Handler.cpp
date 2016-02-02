@@ -212,13 +212,13 @@ void Display_Handler::to_string(char *intBuffer) {
   strcat(intBuffer, "-");                                   // CHECK ZONE
   strcat(intBuffer, (get_perimeter_only() ? "1" : "0"));    // PERIMETER ONLY (ARMED STAY/NIGHT)
   
-  strcat(intBuffer, "----],");
-  sprintf( zoneBuffer, "%03x,", get_zone_field() );
+  strcat(intBuffer, "----],"); //23
+  sprintf( zoneBuffer, "%03x,", get_zone_field() ); //27
   strcat (intBuffer, zoneBuffer);
-  strcat(intBuffer, "\""); //41  
+  strcat(intBuffer, "\""); //28  
   get_display_message(auxBuffer);
-  strcat(intBuffer, auxBuffer ); //73
-  strcat(intBuffer, "\""); //74
+  strcat(intBuffer, auxBuffer ); //60
+  strcat(intBuffer, "\""); //61
   
 }
 
