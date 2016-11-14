@@ -33,54 +33,53 @@ void BUS_Reactor::on_acknowledge() {
   }
   
   if ( acknowledgeHandler.get_ack_address() == device_address ) {
-        // IF there is no callback exit without processing
-        if ( callbackCTS == NULL ) {
-            return;
+
+        int charsSend = strlen( keys_to_send );
+        
+        if ( charsSend > 0 && charsSend < KEY_MESSAGE_LEN ) {
+                    
+          getSerialHandler()->begin(4800,SERIAL_8E1);
+          
+          int header;
+          int bufferIndex = 0;
+          
+          // 2 MSB represent the Seq
+          // 6 LSB represent address
+          // 1100 0000 0xc0
+          // 0011 1111 0x3f
+          header = (((++sequence<<6) & 0xc0) ^ 0xc0) | (device_address & 0x3f);
+          getSerialHandler()->write( header );
+
+          getSerialHandler()->write( charsSend+1 ); // message length
+          
+          int chksum = 0x00;
+          for (int i = 0; i < charsSend ; i++ ) {
+            // [0-9]
+            if(keys_to_send[i] >= 0x30 && keys_to_send[i] <= 0x39 ) {
+              getSerialHandler()->write( keys_to_send[i] - 0x30 ) ; 
+              chksum += ( keys_to_send[i] - 0x30 );
+            // [*]
+            } else if ( keys_to_send[i] == 0x23 ) {
+              getSerialHandler()->write( 0x0B ); 
+              chksum += 0x0A;
+            // [*]
+            } else if ( keys_to_send[i] == 0x2A ) {
+              getSerialHandler()->write( 0x0A ); 
+              chksum += 0x0A;
+            // [A B C D]
+            } else if(keys_to_send[i] >= 0x41 && keys_to_send[i] <= 0x44 ) {
+              getSerialHandler()->write( keys_to_send[i] - 0x25 ) ; 
+              chksum += ( keys_to_send[i] - 0x25 );
+            // [*]
+            }
+                        
+          }
+              
+          // SERIAL_8E1 Data should be written 8 Data 1 Parity(Even) 1 Stop Bits
+          getSerialHandler()->write( 0x100 - (header + chksum + charsSend + 1) ); // checksum
+          
+          getSerialHandler()->begin(4800,SERIAL_8N2);
         }
-        
-        char request = (*callbackCTS)();
-        
-        if ( request == NULL ) {
-            return;
-        }
-        
-        getSerialHandler()->begin(4800,SERIAL_8E1);
-        
-        char buffer[16];
-        memset(buffer, 0x00, sizeof(buffer));
-        
-        char header;
-        int bufferIndex = 0;
-        
-        // 2 MSB represent the Seq
-        // 6 LSB represent address
-        // 1100 0000 0xc0
-        // 0011 1111 0x3f
-        header = (((sequence++<<6) & 0xc0) ^ 0xc0) | (device_address & 0x3f);
-
-        buffer[bufferIndex++] = header; // first byte
-        buffer[bufferIndex++] = 6; // message length
-        
-        char chksum = 0x100;
-        chksum = chksum - header - 6;
-
-        buffer[bufferIndex++] = '1'; // kestroke
-        buffer[bufferIndex++] = '2';
-        buffer[bufferIndex++] = '3';
-        buffer[bufferIndex++] = '4';
-        buffer[bufferIndex++] = '3';
-            
-        chksum = chksum - '1' - '2' - '3' - '4' - '3';
-
-            
-        buffer[bufferIndex++] = chksum & 0xff; // checksum
-        
-        // SERIAL_8E1 Data should be written 8 Data 1 Parity(Even) 1 Stop Bits
-                
-        getSerialHandler()->write( buffer, (bufferIndex-1) );
-        
-        
-        getSerialHandler()->begin(4800,SERIAL_8N2);
   }
 
 }
@@ -102,7 +101,6 @@ BUS_Reactor::BUS_Reactor(HardwareSerial *myAdemcoSerial, int device_address_parm
     device_address = device_address_parm;
     callbackDisplay = NULL;
     callbackStatus = NULL;  
-    callbackCTS = NULL;
 
     acknowledgeHandler.set_serial_handler(myAdemcoHardware);
     statusHandler.set_serial_handler(myAdemcoHardware);
@@ -116,7 +114,6 @@ BUS_Reactor::BUS_Reactor(HardwareSerial *myAdemcoSerial, int device_address_parm
 BUS_Reactor::~BUS_Reactor() {
     callbackDisplay = NULL;
     callbackStatus = NULL;
-    callbackCTS = NULL;
 }
 
 HardwareSerial * BUS_Reactor::getSerialHandler() {
@@ -225,14 +222,14 @@ void BUS_Reactor::handleEvents() {
           // Waits on pin1 for a HIGH value is at least 12 millisec            
           if ( pulseIn( 0, HIGH ) >= 8000 ) {    
               /*        LSB                       MSB
-    			1248 1248 1248 1248 1248 1248
-16      FF,FF,FE        1111 1111 1111 1111 0111 1111
-17	FF,FF,FD	1111 1111 1111 1111 1011 1111
-18	FF,FF,FB	1111 1111 1111 1111 1101 1111
-19	FF,FF,F7	1111 1111 1111 1111 1110 1111 
-20	FF,FF,EF	1111 1111 1111 1111 1111 0111
-21	FF,FF,DF  	1111 1111 1111 1111 1111 1011
-22	FF,FF,BF  	1111 1111 1111 1111 1111 1101        
+                        1248 1248 1248 1248 1248 1248
+          16 FF,FF,FE   1111 1111 1111 1111 0111 1111
+          17 FF,FF,FD   1111 1111 1111 1111 1011 1111
+          18 FF,FF,FB   1111 1111 1111 1111 1101 1111
+          19 FF,FF,F7   1111 1111 1111 1111 1110 1111 
+          20 FF,FF,EF   1111 1111 1111 1111 1111 0111
+          21 FF,FF,DF   1111 1111 1111 1111 1111 1011
+          22 FF,FF,BF   1111 1111 1111 1111 1111 1101        
               */
             
               getSerialHandler()->write( 0xff ); 
@@ -250,9 +247,9 @@ void BUS_Reactor::handleEvents() {
           
 }
 
-
-void BUS_Reactor::request_to_send() {
-    //getSerialHandler()->begin(4800,SERIAL_8N2);
+void BUS_Reactor::request_to_send(char *messageToKeyPad) {
+    memset(keys_to_send, 0x00, sizeof(keys_to_send));
+    strncpy(keys_to_send, messageToKeyPad, KEY_MESSAGE_LEN);
     wantToSend = true;
 }
 
@@ -278,11 +275,6 @@ void BUS_Reactor::attach_debug(panelDebugProtocolCallback debugCallbackParam) {
         //unkHandler.enable_debug( debugCallback );
     }
 }
-
-void BUS_Reactor::attach_clear_to_send(panelClearToSendCallback ctsCallback) {
-    callbackCTS = ctsCallback;
-}
-
 
 void BUS_Reactor::deattach_debug() {
     // debugCallback = NULL;

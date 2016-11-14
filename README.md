@@ -10,41 +10,22 @@ HardwareSerial *myPanelSerial = &Serial1;
 BUS_Reactor vista20p(&myPanelSerial, DEVICE_ADDRESS)
 ```
 
-#Hardware Setup Read Only Interface
-Connect the data-out wire (yellow) to a max232 (Pin 8) or level shifter and put the output of this (Pin 9) to pin 0(RX) on the Arduino. 
+#Hardware Setup 
+Using a MAX3232 Breakout [MAX3232](https://www.sparkfun.com/products/11189)
+Connect the data-out wire (yellow) to a max3232 (R1IN) and the output (R1OUT) to pin 0(RX) on the Arduino. 
+Connect the data-in wire (green) to a max3232 (T1OUT) and the output (T1IN) to pin 1(TX) on the Arduino. 
 
-                 Read Only Interface               |   Arduino    
-                                                   |             
-    +---------+               +----------+         |  +--------+ 
-    |         | Yellow Wire   |  MAX232  |TTL      |  |        | 
-    | Ademco  |-------------->|8        9|---------|->|0(RX)   | 
-    |Vista 20P| 12V           |          | 5V      |  |        | 
-    |  Panel  |               |          |         |  |        | 
-    |         |               |          |         |  |        | 
-    +---------+               +----------+         |  +--------+ 
-                                                   |             
-                     
-#Hardware Setup Write Interface (Still Under Development)
-Connect the data-in wire (green) to an optocoupler 4N25 (Pin 5) and put the input of it (Pin 1) to pin 1(TX) on the Arduino.
-
-                 Write Interface                     |   Arduino    
-                                                     |
-                                                     |
-                    3K                               |
-             12V-/\/\/\/\--+                         |
-                           |                         |                                                    
-                           |                         |             
-    +---------+            |  +----------+           |  +--------+ 
-    |         | Green Wire |  |   4N25   |   380 Ohms|  |        | 
-    | Ademco  |<-----------+--|5        1|<---\/\/\/\---|1(TX)   | 
-    |Vista 20P|               |          |           |  |        | 
-    |  Panel  |               |          |           |  |        | 
-    |         |          +----|4        2|---+       |  |        | 
-    +---------+          |    +----------+   |       |  +--------+ 
-                         |                   |       |             
-                         |                   |
-                         +----------------- GND
-
+                 Read Only Interface                 |   Arduino    
+                                                     |             
+    +---------+               +------------+         |  +--------+ 
+    |         | Yellow Wire   |   MAX3232  |TTL      |  |        | 
+    | Ademco  |-------------->|R1IN   R1OUT|---------|->|0(RX)   | 
+    |Vista 20P| 12V           |            | 5V      |  |        | 
+    |  Panel  |               |            |         |  |        | 
+    |         |<--------------|T1OUT   T1IN|<--------|--|1(TX)   | 
+    +---------+ Green Wire    +------------+         |  +--------+ 
+                                                     |             
+                    
 
 ##Current address write status
 

@@ -26,6 +26,8 @@
 #include "Status_Handler.h"
 #include "Msg9e_Handler.h"
 
+int const KEY_MESSAGE_LEN = 20;
+
 extern "C" {
     // callback function for Display Messages
     typedef void (*panelDisplayCallback)(Display_Handler);
@@ -39,11 +41,6 @@ extern "C" {
 extern "C" {
     // callback function for Status updated Messages
     typedef void (*panelF9Callback)(Msg9e_Handler);
-}
-
-extern "C" {
-    // callback function to allow send to bus
-    typedef char (*panelClearToSendCallback)();
 }
 
 extern "C" {
@@ -70,7 +67,6 @@ private:
     // Callbacks references
     panelStatusCallback callbackStatus;
     panelDisplayCallback callbackDisplay;
-    panelClearToSendCallback callbackCTS;
     panelDebugProtocolCallback debugCallback;
     panelF9Callback callbackF9;
 
@@ -82,18 +78,18 @@ private:
     
     int sequence;
     
-
+    char keys_to_send[KEY_MESSAGE_LEN];        
+    
 public:
   // public methods
   BUS_Reactor(HardwareSerial *,int device_address);
   ~BUS_Reactor();
   void handleEvents();
-  void request_to_send();
+  void request_to_send(char *);
   void attach_display(panelDisplayCallback displayCallback);
   void attach_status(panelStatusCallback statusCallback);
   void attach_f9(panelF9Callback callbackF9);
   void attach_debug(panelDebugProtocolCallback debugCallback);
-  void attach_clear_to_send(panelClearToSendCallback ctsCallback);
   void deattach_debug();
 };
 

@@ -28,8 +28,6 @@
 
 BUS_Reactor vista20p(&Serial, DEVICE_ADDRESS);
 
-char characterToSend;
-
 byte mac[] = {0x90, 0xA2, 0xDA, 0x0D, 0xD7, 0x19 };
 char clientName[] = "arduino:mty:90a2da0dd719";
 byte ip[] = {10, 1, 1, 190 };
@@ -80,10 +78,10 @@ void callback(char* topic, byte* payload, unsigned int length) {
          debug = true;
       } else if ( strcmp("debug_off",auxBuffer ) == 0 )  {
          debug = false;
+      } else {
+              
+        vista20p.request_to_send(auxBuffer);
       }
-      
-      characterToSend = '*';
-      vista20p.request_to_send();
       
     }
 }
@@ -103,8 +101,7 @@ void setup() {
   vista20p.attach_debug(publish_debug_message);
   
   //vista20p.attach_unknown_message(debug_unknown); 
-  vista20p.attach_clear_to_send(send_to_keypad);  
-  
+ 
 }
 
 void loop() {
@@ -183,10 +180,5 @@ void debug_unknown(char *mensaje) {
       client.publish(topicNamePublish,mensaje);
   }  
 }
-
-char send_to_keypad() {
-    return characterToSend;
-}
-
 
 
