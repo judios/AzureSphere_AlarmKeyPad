@@ -48,38 +48,42 @@ void BUS_Reactor::on_acknowledge() {
           // 1100 0000 0xc0
           // 0011 1111 0x3f
           header = (((++sequence<<6) & 0xc0) ^ 0xc0) | (device_address & 0x3f);
-          getSerialHandler()->write( header );
+          getSerialHandler()->write( (int)header );
 
-          getSerialHandler()->write( charsSend+1 ); // message length
+          getSerialHandler()->write( (int)charsSend+1 ); // message length
           
           int chksum = 0x00;
           for (int i = 0; i < charsSend ; i++ ) {
             // [0-9]
             if(keys_to_send[i] >= 0x30 && keys_to_send[i] <= 0x39 ) {
-              getSerialHandler()->write( keys_to_send[i] - 0x30 ) ; 
+              getSerialHandler()->write( (int)(keys_to_send[i] - 0x30) ) ; 
               chksum += ( keys_to_send[i] - 0x30 );
             // [*]
             } else if ( keys_to_send[i] == 0x23 ) {
-              getSerialHandler()->write( 0x0B ); 
+              getSerialHandler()->write( (int)0x0B ); 
               chksum += 0x0A;
             // [*]
             } else if ( keys_to_send[i] == 0x2A ) {
-              getSerialHandler()->write( 0x0A ); 
+              getSerialHandler()->write( (int)0x0A ); 
               chksum += 0x0A;
             // [A B C D]
             } else if(keys_to_send[i] >= 0x41 && keys_to_send[i] <= 0x44 ) {
-              getSerialHandler()->write( keys_to_send[i] - 0x25 ) ; 
+              getSerialHandler()->write( (int)(keys_to_send[i] - 0x25) ) ; 
               chksum += ( keys_to_send[i] - 0x25 );
-            // [*]
             }
                         
           }
               
           // SERIAL_8E1 Data should be written 8 Data 1 Parity(Even) 1 Stop Bits
-          getSerialHandler()->write( 0x100 - (header + chksum + charsSend + 1) ); // checksum
-          
+          getSerialHandler()->write( (int)(0x100 - (header + chksum + charsSend + 1)) ); // checksum
           getSerialHandler()->begin(4800,SERIAL_8N2);
-        }
+
+          char messageBuffer[120];
+          snprintf( messageBuffer, 120, "!ACK:[%x][%d][%s][%d]", header, charsSend+1, keys_to_send, 0x100 - (header + chksum + charsSend + 1) );  
+          (*debugCallback)( messageBuffer );
+                    
+          memset(keys_to_send, 0x00, sizeof(keys_to_send));
+    }
   }
 
 }
