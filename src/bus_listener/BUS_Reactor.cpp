@@ -49,7 +49,6 @@ void BUS_Reactor::on_acknowledge() {
           // 0011 1111 0x3f
           header = (((++sequence<<6) & 0xc0) ^ 0xc0) | (device_address & 0x3f);
           getSerialHandler()->write( (int)header );
-
           getSerialHandler()->write( (int)charsSend+1 ); // message length
           
           int chksum = 0x00;
@@ -61,7 +60,7 @@ void BUS_Reactor::on_acknowledge() {
             // [*]
             } else if ( keys_to_send[i] == 0x23 ) {
               getSerialHandler()->write( (int)0x0B ); 
-              chksum += 0x0A;
+              chksum += 0x0B;
             // [*]
             } else if ( keys_to_send[i] == 0x2A ) {
               getSerialHandler()->write( (int)0x0A ); 
@@ -74,12 +73,14 @@ void BUS_Reactor::on_acknowledge() {
                         
           }
               
+          getSerialHandler()->write( (int)((0x100 - header - (charsSend + 1) - chksum ) & 0xff) ); // checksum
+          getSerialHandler()->flush();
+
           // SERIAL_8E1 Data should be written 8 Data 1 Parity(Even) 1 Stop Bits
-          getSerialHandler()->write( (int)(0x100 - (header + chksum + charsSend + 1)) ); // checksum
           getSerialHandler()->begin(4800,SERIAL_8N2);
 
           char messageBuffer[120];
-          snprintf( messageBuffer, 120, "!ACK:[%x][%d][%s][%d]", header, charsSend+1, keys_to_send, 0x100 - (header + chksum + charsSend + 1) );  
+          snprintf( messageBuffer, 120, "!ACK:[%x][%x][%s][%x]", header, (charsSend+1), keys_to_send, ((0x100 - header - (charsSend + 1) - chksum ) & 0xff) );  
           (*debugCallback)( messageBuffer );
                     
           memset(keys_to_send, 0x00, sizeof(keys_to_send));
