@@ -26,19 +26,13 @@
  */
 void BUS_Reactor::on_acknowledge() {
   
-  if ( debugCallback != NULL ) {
-      char auxBuffer[10];
-      acknowledgeHandler.to_string( auxBuffer );
-      (*debugCallback)( auxBuffer );
-  }
-  
   if ( acknowledgeHandler.get_ack_address() == device_address ) {
 
         int charsSend = strlen( keys_to_send );
         
         if ( charsSend > 0 && charsSend < KEY_MESSAGE_LEN ) {
                     
-          getSerialHandler()->begin(4800,SERIAL_8E1);
+          getSerialHandler()->begin(4800,SERIAL_8E2);
           
           int header;
           int bufferIndex = 0;
@@ -57,7 +51,7 @@ void BUS_Reactor::on_acknowledge() {
             if(keys_to_send[i] >= 0x30 && keys_to_send[i] <= 0x39 ) {
               getSerialHandler()->write( (int)(keys_to_send[i] - 0x30) ) ; 
               chksum += ( keys_to_send[i] - 0x30 );
-            // [*]
+            // [#]
             } else if ( keys_to_send[i] == 0x23 ) {
               getSerialHandler()->write( (int)0x0B ); 
               chksum += 0x0B;
@@ -76,15 +70,17 @@ void BUS_Reactor::on_acknowledge() {
           getSerialHandler()->write( (int)((0x100 - header - (charsSend + 1) - chksum ) & 0xff) ); // checksum
           getSerialHandler()->flush();
 
-          // SERIAL_8E1 Data should be written 8 Data 1 Parity(Even) 1 Stop Bits
+          // SERIAL_8N2 Data should be written 8 Data No Parity 2 Stop Bits
           getSerialHandler()->begin(4800,SERIAL_8N2);
 
-          char messageBuffer[120];
-          snprintf( messageBuffer, 120, "!ACK:[%x][%x][%s][%x]", header, (charsSend+1), keys_to_send, ((0x100 - header - (charsSend + 1) - chksum ) & 0xff) );  
-          (*debugCallback)( messageBuffer );
-                    
           memset(keys_to_send, 0x00, sizeof(keys_to_send));
     }
+  }
+
+  if ( debugCallback != NULL ) {
+      char auxBuffer[10];
+      acknowledgeHandler.to_string( auxBuffer );
+      (*debugCallback)( auxBuffer );
   }
 
 }
