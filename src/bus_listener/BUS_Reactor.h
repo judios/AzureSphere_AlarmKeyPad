@@ -62,7 +62,6 @@ private:
     void on_acknowledge();
     void acknowledgeAddress();
     HardwareSerial * getSerialHandler();
-    unsigned long pulseInBUS(uint8_t pin, uint8_t state);
     
 
     // Callbacks references

@@ -33,7 +33,7 @@
 void BUS_Reactor::on_acknowledge() {
   
   if ( acknowledgeHandler.get_ack_address() == device_address ) {
-        //getSerialHandler()->begin(4800,SERIAL_8E2);
+        getSerialHandler()->begin(4800,SERIAL_8E2);
         // Bits in UCSR0C, USART Control and Status Register 0C
         // UMSEL01: USART Mode Select bit 1
         // UMSEL00: USART Mode Select bit 0
@@ -45,8 +45,8 @@ void BUS_Reactor::on_acknowledge() {
         // UCPOL0:  Clock Polarity
         //
         
-        sbi(UCSR0C, UPM01 ); // Enable Parity
-        cbi(UCSR0C, UPM00 ); // Even Parity
+        //sbi(UCSR0C, UPM01 ); // Enable Parity
+        //cbi(UCSR0C, UPM00 ); // Even Parity
         
         int charsSend = strlen( keys_to_send );
         
@@ -92,10 +92,10 @@ void BUS_Reactor::on_acknowledge() {
         }
 
         // SERIAL_8N2 Data should be written 8 Data No Parity 2 Stop Bits
-        cbi(UCSR0C, UPM01 ); // Disable Parity
-        cbi(UCSR0C, UPM00 ); // Even Parity
+        //cbi(UCSR0C, UPM01 ); // Disable Parity
+        //cbi(UCSR0C, UPM00 ); // Even Parity
         
-        //getSerialHandler()->begin(4800,SERIAL_8N2);
+        getSerialHandler()->begin(4800,SERIAL_8N2);
         memset(keys_to_send, 0x00, sizeof(keys_to_send));
     
   }
@@ -145,38 +145,6 @@ HardwareSerial * BUS_Reactor::getSerialHandler() {
   
 }
   
-unsigned long BUS_Reactor::pulseInBUS(uint8_t pin, uint8_t state)  {
-    // cache the port and bit of the pin in order to speed up the
-    // pulse width measuring loop and achieve finer resolution.  calling
-    // digitalRead() instead yields much coarser resolution.
-    uint8_t bit = digitalPinToBitMask(pin);
-    uint8_t port = digitalPinToPort(pin);
-    uint8_t stateMask = (state ? bit : 0);
-    unsigned long width = 0; // keep initialization out of time critical area
-	
-    // convert the timeout from microseconds to a number of times through
-    // the initial loop; it takes 16 clock cycles per iteration.
-    unsigned long numloops = 0;
-    unsigned long maxloops = 5000000;
-	
-    // wait for any previous pulse to end
-    while ((*portInputRegister(port) & bit) == stateMask)
-  	if (numloops++ == maxloops)
-        	return 0;
-	
-    // wait for the pulse to start
-    while ((*portInputRegister(port) & bit) != stateMask)
-	if (numloops++ == maxloops)
-		return 0;
-	
-    // wait for the pulse to stop
-    while ((*portInputRegister(port) & bit) == stateMask) {
-	width++;
-    }
-
-    return width;
-}
-    
 /*
  * handle Serial events must be called inside the loop method
  */
