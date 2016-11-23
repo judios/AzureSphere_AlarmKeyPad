@@ -19,6 +19,12 @@
 #include "Arduino.h"
 #include "BUS_Reactor.h"
 
+#ifndef cbi
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+#endif
+#ifndef sbi
+#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+#endif  
 
 /*
  * calls the callback method callback clear to send
@@ -27,13 +33,24 @@
 void BUS_Reactor::on_acknowledge() {
   
   if ( acknowledgeHandler.get_ack_address() == device_address ) {
-
+        //getSerialHandler()->begin(4800,SERIAL_8E2);
+        // Bits in UCSR0C, USART Control and Status Register 0C
+        // UMSEL01: USART Mode Select bit 1
+        // UMSEL00: USART Mode Select bit 0
+        // UPM01:   Parity Mode bit 1
+        // UPM00:   Parity Mode bit 0
+        // USBS0:   Stop Bit Select
+        // UCSZ01:  Character Size bit 1
+        // UCSZ00:  Character Size bit 0
+        // UCPOL0:  Clock Polarity
+        //
+        
+        sbi(UCSR0C, UPM01 ); // Enable Parity
+        cbi(UCSR0C, UPM00 ); // Even Parity
+        
         int charsSend = strlen( keys_to_send );
         
         if ( charsSend > 0 && charsSend < KEY_MESSAGE_LEN ) {
-                    
-          getSerialHandler()->begin(4800,SERIAL_8E2);
-          
           int header;
           int bufferIndex = 0;
           
@@ -43,7 +60,9 @@ void BUS_Reactor::on_acknowledge() {
           // 0011 1111 0x3f
           header = (((++sequence<<6) & 0xc0) ^ 0xc0) | (device_address & 0x3f);
           getSerialHandler()->write( (int)header );
+          getSerialHandler()->flush();
           getSerialHandler()->write( (int)charsSend+1 ); // message length
+          getSerialHandler()->flush();
           
           int chksum = 0x00;
           for (int i = 0; i < charsSend ; i++ ) {
@@ -64,17 +83,21 @@ void BUS_Reactor::on_acknowledge() {
               getSerialHandler()->write( (int)(keys_to_send[i] - 0x25) ) ; 
               chksum += ( keys_to_send[i] - 0x25 );
             }
-                        
+            getSerialHandler()->flush();           
           }
               
           getSerialHandler()->write( (int)((0x100 - header - (charsSend + 1) - chksum ) & 0xff) ); // checksum
           getSerialHandler()->flush();
 
-          // SERIAL_8N2 Data should be written 8 Data No Parity 2 Stop Bits
-          getSerialHandler()->begin(4800,SERIAL_8N2);
+        }
 
-          memset(keys_to_send, 0x00, sizeof(keys_to_send));
-    }
+        // SERIAL_8N2 Data should be written 8 Data No Parity 2 Stop Bits
+        cbi(UCSR0C, UPM01 ); // Disable Parity
+        cbi(UCSR0C, UPM00 ); // Even Parity
+        
+        //getSerialHandler()->begin(4800,SERIAL_8N2);
+        memset(keys_to_send, 0x00, sizeof(keys_to_send));
+    
   }
 
   if ( debugCallback != NULL ) {
@@ -167,6 +190,8 @@ void BUS_Reactor::handleEvents() {
             if ( cr == F7_DISPLAY_EVENT ) {
       
               if ( displayHandler.handle_event( F7_DISPLAY_EVENT ) > 0 ) {
+                  acknowledgeAddress();
+                  
                   // IF there is no callback exit without processing
                   if ( callbackDisplay == NULL ) {
                       return;
@@ -218,10 +243,18 @@ void BUS_Reactor::handleEvents() {
           // No incomming data ? check if transmition is needed
           } 
      } else if ( wantToSend == true ) {   
-          // SERIAL_8N2 Adress Data should be written 8 Data 2 Stop Bit No Parity      
+          
+          acknowledgeAddress();
+                             
+     }
+          
+}
+
+void BUS_Reactor::acknowledgeAddress() {
+  // SERIAL_8N2 Adress Data should be written 8 Data 2 Stop Bit No Parity      
                   
-          // Waits on pin1 for a HIGH value is at least 12 millisec            
-          if ( pulseIn( 0, HIGH ) >= 8000 ) {    
+  // Waits on pin1 for a HIGH value is at least 12 millisec            
+  if ( pulseIn( 0, HIGH ) >= 8000 ) {    
               /*        LSB                       MSB
                         1248 1248 1248 1248 1248 1248
           16 FF,FF,FE   1111 1111 1111 1111 0111 1111
@@ -230,7 +263,9 @@ void BUS_Reactor::handleEvents() {
           19 FF,FF,F7   1111 1111 1111 1111 1110 1111 
           20 FF,FF,EF   1111 1111 1111 1111 1111 0111
           21 FF,FF,DF   1111 1111 1111 1111 1111 1011
-          22 FF,FF,BF   1111 1111 1111 1111 1111 1101        
+          22 FF,FF,BF   1111 1111 1111 1111 1111 1101 
+          23 FF,FF,FE   1111 1111 1111 1111 1111 1110 
+          24 FF,FF,FF   1111 1111 1111 1111 1111 1111      
               */
             
               getSerialHandler()->write( 0xff ); 
@@ -241,11 +276,9 @@ void BUS_Reactor::handleEvents() {
                 
               getSerialHandler()->write( 0xf7 ); 
        
-              wantToSend = false;                     
-          }
-                        
-      }
-          
+              wantToSend = false;           
+
+  }
 }
 
 void BUS_Reactor::request_to_send(char *messageToKeyPad) {
