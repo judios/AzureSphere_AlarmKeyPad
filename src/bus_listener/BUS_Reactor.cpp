@@ -19,13 +19,6 @@
 #include "Arduino.h"
 #include "BUS_Reactor.h"
 
-#ifndef cbi
-#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
-#endif
-#ifndef sbi
-#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
-#endif  
-
 /*
  * calls the callback method callback clear to send
  * so the client can write to the BUS
@@ -34,19 +27,6 @@ void BUS_Reactor::on_acknowledge() {
   
   if ( acknowledgeHandler.get_ack_address() == device_address ) {
         getSerialHandler()->begin(4800,SERIAL_8E2);
-        // Bits in UCSR0C, USART Control and Status Register 0C
-        // UMSEL01: USART Mode Select bit 1
-        // UMSEL00: USART Mode Select bit 0
-        // UPM01:   Parity Mode bit 1
-        // UPM00:   Parity Mode bit 0
-        // USBS0:   Stop Bit Select
-        // UCSZ01:  Character Size bit 1
-        // UCSZ00:  Character Size bit 0
-        // UCPOL0:  Clock Polarity
-        //
-        
-        //sbi(UCSR0C, UPM01 ); // Enable Parity
-        //cbi(UCSR0C, UPM00 ); // Even Parity
         
         int charsSend = strlen( keys_to_send );
         
@@ -92,9 +72,6 @@ void BUS_Reactor::on_acknowledge() {
         }
 
         // SERIAL_8N2 Data should be written 8 Data No Parity 2 Stop Bits
-        //cbi(UCSR0C, UPM01 ); // Disable Parity
-        //cbi(UCSR0C, UPM00 ); // Even Parity
-        
         getSerialHandler()->begin(4800,SERIAL_8N2);
         memset(keys_to_send, 0x00, sizeof(keys_to_send));
     
