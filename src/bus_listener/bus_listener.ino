@@ -102,7 +102,9 @@ void message_f9(Msg9e_Handler new_message) {
 
 
 void publish_debug_message(char *mensaje) {
-    
+    terminal.write( mensaje,strlen(mensaje) );
+    terminal.println();
+    terminal.flush();
 }
 
 void debug_unknown(char *mensaje) {
