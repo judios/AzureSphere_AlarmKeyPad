@@ -38,6 +38,12 @@ Arduino address 19:
 
 #IOT
 This sketch is publishing changes to a free [blynk server](http://www.blynk.cc/) you can download the native android aplication to see LCD on phone
+
+![alt text](https://raw.githubusercontent.com/matlock08/homesecurity/master/docs/disarmed.png "Dissarmed")
+
+![alt text](https://raw.githubusercontent.com/matlock08/homesecurity/master/docs/fault.png "Fault")
+
+![alt text](https://raw.githubusercontent.com/matlock08/homesecurity/master/docs/system_lo_bat.png "System low BAT")
  
 
 #Protocol
