@@ -147,7 +147,9 @@ void BUS_Reactor::handleEvents() {
             } else if ( cr == F6_ACK_EVENT ) {
       
               if ( acknowledgeHandler.handle_event( F6_ACK_EVENT ) > 0 ) {
+                
                   on_acknowledge();
+                  
               }
               
             } else if ( cr == F2_STATUS_EVENT ) {
@@ -211,6 +213,8 @@ void BUS_Reactor::acknowledgeAddress() {
           22 FF,FF,BF   1111 1111 1111 1111 1111 1101 
           23 FF,FF,FE   1111 1111 1111 1111 1111 1110 
           24 FF,FF,FF   1111 1111 1111 1111 1111 1111      
+
+          
               */
             
               getSerialHandler()->write( 0xff ); 
@@ -219,14 +223,14 @@ void BUS_Reactor::acknowledgeAddress() {
               getSerialHandler()->write( 0xff );
               pulseIn( 0, HIGH );
                 
-              getSerialHandler()->write( 0xf7 ); 
+              getSerialHandler()->write( 0xfe << (device_address - 16 ) ); 
        
               wantToSend = false;           
 
   }
 }
 
-void BUS_Reactor::request_to_send(char *messageToKeyPad) {
+void BUS_Reactor::request_to_send(const char *messageToKeyPad) {
     memset(keys_to_send, 0x00, sizeof(keys_to_send));
     strncpy(keys_to_send, messageToKeyPad, KEY_MESSAGE_LEN);
     wantToSend = true;

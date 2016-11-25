@@ -36,23 +36,8 @@ Real keypad address 19:
 Arduino address 19: 
 ![alt text](https://raw.githubusercontent.com/matlock08/homesecurity/master/docs/arduinoKeypad19OK.png "Arduino addr 19")
 
-#MQTT
-This sketch is publishing changes to a free mqtt server (test.mosquito.org) you can subscribe to the same same topic on a android phone
-width a mqtt client like [MyMQTT](https://play.google.com/store/apps/details?id=at.tripwire.mqtt.client&hl=en) or by using
-a web mqtt client like [HiveMQ](http://www.hivemq.com/demos/websocket-client/)
-
-Arduino currently suports the below commands
-
-| Command        | Description  |
-| ------------- |:-------------:|
-| debug_on  | Enable all debug very verbose |
-| debug_off  | Disable all debug messages |
-| display_on  | Enable F7 Messages decode publish |
-| display_off  | Disable F7 publish |
-| status_on  | Enable F2 Messages decode publish |
-| status_off  | Disable F2 publish |
-| rfx_on  | Enable F9 Messages |
-| rfx_off  | Disable F9 |
+#IOT
+This sketch is publishing changes to a free [blynk server](http://www.blynk.cc/) you can download the native android aplication to see LCD on phone
  
 
 #Protocol

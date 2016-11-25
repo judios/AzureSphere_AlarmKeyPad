@@ -21,7 +21,7 @@
 #include "BUS_Reactor.h"
 #include <SPI.h>
 #include <Ethernet.h>
-#include <PubSubClient.h>
+#include <BlynkSimpleEthernet.h>
 
 #define DEVICE_ADDRESS 19
 #define LED 9
@@ -29,69 +29,30 @@
 BUS_Reactor vista20p(&Serial, DEVICE_ADDRESS);
 
 byte mac[] = {0x90, 0xA2, 0xDA, 0x0D, 0xD7, 0x19 };
-char clientName[] = "arduino:mty:90a2da0dd719";
+char auth[] = "dc97b824634847a5a65a6617b5489361";
+WidgetTerminal terminal(V0);
+WidgetLCD lcd(V1);
 byte ip[] = {10, 1, 1, 190 };
 
-char servername[] ="test.mosquitto.org";
-char topicNamePublish[] = "alarmpanel/out";
-char topicNameReceive[] = "alarmpanel/in";
 #define BUFFER_LEN 100
 char messageBuffer[BUFFER_LEN];
 
 EthernetClient ethClient;
 boolean state = false;
-boolean debug = false;
 
-void callback(char* topic, byte* payload, unsigned int length) {
+BLYNK_WRITE(V0) {
     state = !state;
     digitalWrite(LED, !state ? HIGH : LOW ); // Visualy identify an incomming message
-    char auxBuffer[20];
+  
+    vista20p.request_to_send( param.asStr() );
 
-    if ( length <= sizeof(auxBuffer) ) {
-        
-      memset(auxBuffer, 0x00, sizeof(auxBuffer));
-      memcpy(auxBuffer, payload, length);
-         
-      memset(messageBuffer, 0x00, sizeof(messageBuffer));
-      snprintf( messageBuffer,BUFFER_LEN, "!CBK:[%s][%s]", topic, auxBuffer );  
-      
-      //publish_debug_message(messageBuffer);
-   
-      if ( strcmp("status_on",auxBuffer ) == 0 ) {
-         vista20p.attach_status(status_upated);
-      // Disable Status
-      } else if ( strcmp("status_off",auxBuffer ) == 0 ) {
-         vista20p.attach_status( NULL );
-      // Enable Display
-      } else if ( strcmp("display_on",auxBuffer ) == 0 ) {
-         vista20p.attach_display(message_updated);
-      // Disable Display
-      } else if ( strcmp("display_off",auxBuffer ) == 0 ) {
-         vista20p.attach_display( NULL );
-      // Enable RFX Messages
-      } else if ( strcmp("rfx_on",auxBuffer ) == 0 ) {
-         vista20p.attach_f9(message_f9);
-      // Disable RFX Messages
-      } else if ( strcmp("rfx_off",auxBuffer ) == 0 ) {
-         vista20p.attach_f9( NULL );
-      } else if ( strcmp("debug_on",auxBuffer ) == 0 ) {
-         debug = true;
-      } else if ( strcmp("debug_off",auxBuffer ) == 0 )  {
-         debug = false;
-      } else {
-              
-        vista20p.request_to_send(auxBuffer);
-      }
-      
-    }
 }
-
-PubSubClient client(servername, 1883, callback, ethClient);
 
 void setup() {
   pinMode(LED, OUTPUT);
   digitalWrite(LED, HIGH);
   Ethernet.begin(mac, ip);
+  Blynk.begin(auth); 
   
   Serial.begin(4800,SERIAL_8N2);
  
@@ -107,78 +68,45 @@ void setup() {
 void loop() {
     
     vista20p.handleEvents();        
+    Blynk.run();
     
-    if (!client.connected()) {    
-        client.connect(clientName);
-        client.publish(topicNamePublish,"Connected");
-        client.subscribe(topicNameReceive);
-    }
-    
-    client.loop();
 }
 
 // 61 Characters
-void message_updated(Display_Handler mensaje) {
-  if (client.connected() ) {      
-      mensaje.to_string(messageBuffer);
-      client.publish(topicNamePublish,messageBuffer);
-/*
-      if ( debug == true ) {
-                  
-         mensaje.debug_to_string(auxiliarBuffer); // 45
+void message_updated(Display_Handler mensaje) {  
+      
+    mensaje.get_display_message(messageBuffer);
 
-         memset(messageEncoded, 0x00, sizeof(messageEncoded));
-         
-         for ( int i = 0; i < F7_MESSAGE_LEN; i++) {
-            char auxBuffer[8];
-            sprintf( auxBuffer, "%02x ", auxiliarBuffer[i] );
-            strcat(messageEncoded, auxBuffer);
-         }
+    lcd.clear(); //Use it to clear the LCD Widget
 
-         client.publish(topicNamePublish,messageEncoded);
-      }*/
-  }
+    char subbuff[17];
+    strncpy(subbuff, messageBuffer, 16);
+    lcd.print(0, 0, subbuff  ); 
+
+    strncpy(subbuff, messageBuffer+16, 16);
+    lcd.print(0, 1, subbuff);
+  
 }
 
 //61 Characters
 void status_upated(Status_Handler new_status) {
-  if (client.connected() ) {
+
       new_status.to_string(messageBuffer);
-      client.publish(topicNamePublish,messageBuffer);
-/*
-      if ( debug == true ) {
-         new_status.debug_to_string(messageBuffer);
-         client.publish(topicNamePublish,messageBuffer);
-      }
-      */
-  }
+
 }
 
 //37 Characters
 void message_f9(Msg9e_Handler new_message) {
-  if (client.connected() ) {
       new_message.to_string(messageBuffer);
-      client.publish(topicNamePublish,messageBuffer);
-/*
-      if ( debug == true ) {
-         new_message.debug_to_string(messageBuffer);
-         client.publish(topicNamePublish,messageBuffer);
-      }
-      */
-  }
 }
 
 
 void publish_debug_message(char *mensaje) {
-  if (client.connected() ) {      
-      client.publish(topicNamePublish,mensaje);
-  }    
+    
 }
 
 void debug_unknown(char *mensaje) {
-  if (client.connected() ) {      
-      client.publish(topicNamePublish,mensaje);
-  }  
+  
 }
 
 

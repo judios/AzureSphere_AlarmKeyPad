@@ -85,7 +85,7 @@ public:
   BUS_Reactor(HardwareSerial *,int device_address);
   ~BUS_Reactor();
   void handleEvents();
-  void request_to_send(char *);
+  void request_to_send(const char *);
   void attach_display(panelDisplayCallback displayCallback);
   void attach_status(panelStatusCallback statusCallback);
   void attach_f9(panelF9Callback callbackF9);
