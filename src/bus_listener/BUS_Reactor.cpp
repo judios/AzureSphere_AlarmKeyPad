@@ -231,7 +231,7 @@ void BUS_Reactor::acknowledgeAddress() {
               getSerialHandler()->write( 0xff );
               pulseIn( 0, HIGH );
                 
-              getSerialHandler()->write( 0xfe << (device_address - 16 ) ); 
+              getSerialHandler()->write( 0xf7 ); 
        
               wantToSend = false;           
 
