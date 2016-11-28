@@ -53,10 +53,17 @@ int Acknowledge_Handler::get_ack_address() {
 }
 
 /* 
+ * Return the sequence number
+ */
+int Acknowledge_Handler::get_seq_number() {
+    return (int)buffer[2];
+}
+
+/* 
  * String representation of the message
  */
 void Acknowledge_Handler::to_string(char *auxBuffer) {
-    sprintf( auxBuffer, "!ACK:[%d]", get_ack_address() );
+    sprintf( auxBuffer, "!ACK:[%d][%02x]", get_ack_address(), get_seq_number() );
 
 }
 

@@ -22,7 +22,7 @@
 
 #include "Event_Handler.h"
 
-int const F6_MESSAGE_LEN = 2;
+int const F6_MESSAGE_LEN = 3;
 
 class Acknowledge_Handler : public Event_Handler {
     public:
@@ -30,6 +30,7 @@ class Acknowledge_Handler : public Event_Handler {
         virtual int handle_event (char et);
         void reset();
         int get_ack_address();
+        int get_seq_number();
         virtual void to_string(char *);
         virtual void debug_to_string(char *);
     private:

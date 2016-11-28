@@ -27,8 +27,8 @@
 #endif  
 
 /*
- * calls the callback method callback clear to send
- * so the client can write to the BUS
+ * Called after and F6 even to gice us the chance to
+ * write to the BUS, if it is our address
  */
 void BUS_Reactor::on_acknowledge() {
   
@@ -38,8 +38,7 @@ void BUS_Reactor::on_acknowledge() {
         
         int charsSend = strlen( keys_to_send );
         
-        if ( charsSend > 0 && charsSend < KEY_MESSAGE_LEN ) {
-          int header;
+        if ( charsSend > 0 && charsSend < KEY_MESSAGE_LEN ) {          
           int bufferIndex = 0;
           
           // 2 MSB represent the Seq
@@ -83,10 +82,16 @@ void BUS_Reactor::on_acknowledge() {
         cbi(UCSR0C, UPM00 ); // Even Parity
         memset(keys_to_send, 0x00, sizeof(keys_to_send));
     
+        // Used to identify Acknowledge 
+        if ( debugCallback != NULL ) {
+            char auxBuffer[16];
+            sprintf("!SND:[%02x]", header );
+            (*debugCallback)( auxBuffer );
+        }
   }
 
   if ( debugCallback != NULL ) {
-      char auxBuffer[10];
+      char auxBuffer[16];
       acknowledgeHandler.to_string( auxBuffer );
       (*debugCallback)( auxBuffer );
   }
@@ -182,16 +187,13 @@ void BUS_Reactor::handleEvents() {
               
             }  else {
               // Unknown messages or cero
-              if ( debugCallback == NULL ) {
+              if ( debugCallback == NULL && cr != 0x00 ) {
                 return;
               }
               
-              //char buffer[12];
-              //memset(buffer, 0x00, sizeof(buffer));
-              
-              //sprintf( buffer, "[%02x]", cr );
-                     
-              //(*debugCallback)(buffer);
+              char auxBuffer[4];
+              sprintf("%02x,", cr );
+              (*debugCallback)( auxBuffer );              
       
             }
       
@@ -206,8 +208,6 @@ void BUS_Reactor::handleEvents() {
 }
 
 void BUS_Reactor::acknowledgeAddress() {
-  // SERIAL_8N2 Adress Data should be written 8 Data 2 Stop Bit No Parity      
-                  
   // Waits on pin1 for a HIGH value is at least 12 millisec            
   if ( pulseIn( 0, HIGH ) >= 8000 ) {    
               /*        LSB                       MSB
@@ -220,10 +220,8 @@ void BUS_Reactor::acknowledgeAddress() {
           21 FF,FF,DF   1111 1111 1111 1111 1111 1011
           22 FF,FF,BF   1111 1111 1111 1111 1111 1101 
           23 FF,FF,FE   1111 1111 1111 1111 1111 1110 
-          24 FF,FF,FF   1111 1111 1111 1111 1111 1111      
-
-          
-              */
+          24 FF,FF,FF   1111 1111 1111 1111 1111 1111
+          */
             
               getSerialHandler()->write( 0xff ); 
               pulseIn( 0, HIGH ); 
@@ -231,10 +229,9 @@ void BUS_Reactor::acknowledgeAddress() {
               getSerialHandler()->write( 0xff );
               pulseIn( 0, HIGH );
                 
-              getSerialHandler()->write( 0xf7 ); 
+              getSerialHandler()->write( ~(0x01 << (device_address-16) ) ); 
        
-              wantToSend = false;           
-
+              wantToSend = false;   
   }
 }
 

@@ -74,9 +74,9 @@ private:
     boolean wantToSend;
     
     // Internal Device Address
-    int device_address;
-    
+    int device_address;    
     int sequence;
+    int header;
     
     char keys_to_send[KEY_MESSAGE_LEN];        
     
