@@ -112,6 +112,7 @@ BUS_Reactor::BUS_Reactor(HardwareSerial *myAdemcoSerial, int device_address_parm
     myAdemcoHardware = myAdemcoSerial;
     wantToSend = false;
     sequence = 1;
+    header = 0x00;
     device_address = device_address_parm;
     callbackDisplay = NULL;
     callbackStatus = NULL;  
@@ -185,15 +186,25 @@ void BUS_Reactor::handleEvents() {
                     (*callbackF9)(unkHandler);
               }
               
-            }  else {
+            } else if ( header != 0x00 && cr == header ) {
+                header = 0x00;
+                if ( debugCallback == NULL ) {
+                      return;
+                }
+
+                char auxBuffer[12];
+                sprintf("!MACK:[%02x]", cr );
+                (*debugCallback)( auxBuffer );
+
+            } else {
               // Unknown messages or cero
               if ( debugCallback == NULL && cr != 0x00 ) {
                 return;
               }
               
-              char auxBuffer[4];
-              sprintf("%02x,", cr );
-              (*debugCallback)( auxBuffer );              
+              //char auxBuffer[4];
+              //sprintf("%02x,", cr );
+              //(*debugCallback)( auxBuffer );              
       
             }
       
