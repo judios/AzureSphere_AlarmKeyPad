@@ -85,7 +85,7 @@ void BUS_Reactor::on_acknowledge() {
         // Used to identify Acknowledge 
         if ( debugCallback != NULL ) {
             char auxBuffer[16];
-            sprintf("!SND:[%02x]", header );
+            sprintf(auxBuffer,"!SND:[%02x]", header );
             (*debugCallback)( auxBuffer );
         }
   }
@@ -193,7 +193,7 @@ void BUS_Reactor::handleEvents() {
                 }
 
                 char auxBuffer[12];
-                sprintf("!MACK:[%02x]", cr );
+                sprintf(auxBuffer,"!MACK:[%02x]", cr );
                 (*debugCallback)( auxBuffer );
 
             } else {
