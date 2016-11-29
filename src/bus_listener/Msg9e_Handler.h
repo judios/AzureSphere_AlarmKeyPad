@@ -32,7 +32,7 @@ class Msg9e_Handler : public Event_Handler {
         virtual void to_string(char *);
         virtual void debug_to_string(char *);
     private:
-        char buffer[F9E_MESSAGE_LEN*4];
+        char buffer[F9E_MESSAGE_LEN+4];
 };
 
 

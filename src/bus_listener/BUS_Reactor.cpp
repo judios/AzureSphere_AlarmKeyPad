@@ -82,18 +82,6 @@ void BUS_Reactor::on_acknowledge() {
         cbi(UCSR0C, UPM00 ); // Even Parity
         memset(keys_to_send, 0x00, sizeof(keys_to_send));
     
-        // Used to identify Acknowledge 
-        if ( debugCallback != NULL ) {
-            char auxBuffer[16];
-            sprintf(auxBuffer,"!SND:[%02x]", header );
-            (*debugCallback)( auxBuffer );
-        }
-  }
-
-  if ( debugCallback != NULL ) {
-      char auxBuffer[16];
-      acknowledgeHandler.to_string( auxBuffer );
-      (*debugCallback)( auxBuffer );
   }
 
 }
@@ -219,31 +207,19 @@ void BUS_Reactor::handleEvents() {
 }
 
 void BUS_Reactor::acknowledgeAddress() {
-  // Waits on pin1 for a HIGH value is at least 12 millisec            
-  if ( pulseIn( 0, HIGH ) >= 8000 ) {    
-              /*        LSB                       MSB
-                        1248 1248 1248 1248 1248 1248
-          16 FF,FF,FE   1111 1111 1111 1111 0111 1111
-          17 FF,FF,FD   1111 1111 1111 1111 1011 1111
-          18 FF,FF,FB   1111 1111 1111 1111 1101 1111
-          19 FF,FF,F7   1111 1111 1111 1111 1110 1111 
-          20 FF,FF,EF   1111 1111 1111 1111 1111 0111
-          21 FF,FF,DF   1111 1111 1111 1111 1111 1011
-          22 FF,FF,BF   1111 1111 1111 1111 1111 1101 
-          23 FF,FF,FE   1111 1111 1111 1111 1111 1110 
-          24 FF,FF,FF   1111 1111 1111 1111 1111 1111
-          */
+    // Waits on pin1 for a HIGH value is at least 12 millisec            
+    if ( pulseIn( 0, HIGH ) >= 8000 ) {    
             
-              getSerialHandler()->write( 0xff ); 
-              pulseIn( 0, HIGH ); 
+        getSerialHandler()->write( 0xff ); 
+        pulseIn( 0, HIGH ); 
 
-              getSerialHandler()->write( 0xff );
-              pulseIn( 0, HIGH );
+        getSerialHandler()->write( 0xff );
+        pulseIn( 0, HIGH );
                 
-              getSerialHandler()->write( ~(0x01 << (device_address-16) ) ); 
+        getSerialHandler()->write( ~(0x01 << (device_address-16) ) ); 
        
-              wantToSend = false;   
-  }
+        wantToSend = false;   
+    }
 }
 
 void BUS_Reactor::request_to_send(const char *messageToKeyPad) {

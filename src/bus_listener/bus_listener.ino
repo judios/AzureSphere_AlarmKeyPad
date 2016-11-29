@@ -34,7 +34,7 @@ WidgetTerminal terminal(V0);
 WidgetLCD lcd(V1);
 byte ip[] = {10, 1, 1, 190 };
 
-#define BUFFER_LEN 100
+#define BUFFER_LEN 50
 char messageBuffer[BUFFER_LEN];
 
 EthernetClient ethClient;
@@ -72,9 +72,8 @@ void loop() {
     
 }
 
-// 61 Characters
 void message_updated(Display_Handler mensaje) {  
-      
+    // 32 characters
     mensaje.get_display_message(messageBuffer);
 
     lcd.clear(); //Use it to clear the LCD Widget
