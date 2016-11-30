@@ -62,15 +62,15 @@ Together on the wire they look like a single byte of    00100001 0x21
     __________________________/\_________/\__________/\_/\_____  (0xFF, 0xFF, 0xEF) (Green data-in)
 
 ```c
-				                LSB                         MSB
-    				            1248 1248  1248 1248  1248 1248
-Address - 16  FF,FF,FE	1111 1111  1111 1111  0111 1111
-Address - 17	FF,FF,FD	1111 1111  1111 1111  1011 1111
-Address - 18	FF,FF,FB	1111 1111  1111 1111  1101 1111
-Address - 19	FF,FF,F7	1111 1111  1111 1111  1110 1111 
-Address - 20	FF,FF,EF	1111 1111  1111 1111  1111 0111
-Address - 21	FF,FF,DF  1111 1111  1111 1111  1111 1011
-Address - 22	FF,FF,BF  1111 1111  1111 1111  1111 1101
+                         LSB                         MSB
+                         1248 1248  1248 1248  1248 1248
+Address - 16    FF,FF,FE 1111 1111  1111 1111  0111 1111
+Address - 17    FF,FF,FD 1111 1111  1111 1111  1011 1111
+Address - 18    FF,FF,FB 1111 1111  1111 1111  1101 1111
+Address - 19    FF,FF,F7 1111 1111  1111 1111  1110 1111
+Address - 20    FF,FF,EF 1111 1111  1111 1111  1111 0111
+Address - 21    FF,FF,DF 1111 1111  1111 1111  1111 1011
+Address - 22    FF,FF,BF 1111 1111  1111 1111  1111 1101
 ```
 #License
 This project uses some parts of Arduino IDE - specifically the SoftwareSerial library.  So, whatever license that is under, this project is under (for the time being).
