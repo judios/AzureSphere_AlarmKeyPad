@@ -40,7 +40,7 @@ void Msg9e_Handler::reset() {
  */
 int Msg9e_Handler::handle_event(char et) {
     reset();    
-    buffer[0] = (unsigned char)(et & 0x00ff);
+    buffer[0] = (unsigned char)(et & 0xff);
     read_chars( F9E_MESSAGE_LEN, buffer );
     return 1;
 }
@@ -51,7 +51,7 @@ int Msg9e_Handler::handle_event(char et) {
  */
 void Msg9e_Handler::to_string(char *intBuffer) {
     memset(intBuffer, 0x00, sizeof(intBuffer));
-    sprintf( intBuffer, "!M9E:{" ); 
+    sprintf( intBuffer, "F9:{" ); 
     char auxBuffer[8];
     
     for ( int i = 0 ; i< 7; i++ ) {        

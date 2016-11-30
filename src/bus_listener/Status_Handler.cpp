@@ -148,15 +148,15 @@ void Status_Handler::get_fault_str(char *res) {
       strcpy(res, "NORMAL");
       return;
     } else if ( get_fault() == F2_BYTE4_FAULT_COUNTING_EXIT ) {
-      sprintf( res, "CNT %d", get_count_down() ); 
+      sprintf( res, "EXIT %d", get_count_down() ); 
       return;      
     } else if ( get_fault() == F2_BYTE4_FAULT_COUNTING_ENTER ) {
-      sprintf( res, "CNT %d", get_count_down() ); 
+      sprintf( res, "ENTER %d", get_count_down() ); 
       return;          
     } else if ( get_fault() == F2_BYTE4_FAULT_ALARM ) {
       strcpy(res, "ALARM");  
     } else if ( get_fault() == F2_BYTE4_FAULT_BYPASSED ) {
-      strcpy(res, "BYPASSED");
+      strcpy(res, "BYPAS");
     } else if ( get_fault() == F2_BYTE4_FAULT_PANIC ) {
       strcpy(res, "PANIC");
     }  

@@ -206,10 +206,10 @@ void Display_Handler::to_string(char *intBuffer) {
   strcat(intBuffer, (get_chime_mode() ? "1" : "0"));        // Chime Mode    
   strcat(intBuffer, (get_alarm_ocurred() ? "1" : "0"));     // ALARM OCCURRED STICKY BIT (cleared 2nd disarm)
   strcat(intBuffer, (get_alarm_bell() ? "1" : "0"));        // ALARM BELL (cleared 1st disarm)
-  strcat(intBuffer, "-");                                   // BATTERY LOW
+  strcat(intBuffer, "-");                                   // BATTERY LOW TODO
   strcat(intBuffer, (get_entry_delay_off() ? "1" : "0"));   // ENTRY DELAY OFF (ARMED INSTANT/MAX)
-  strcat(intBuffer, "-");                                   // FIRE ALARM
-  strcat(intBuffer, "-");                                   // CHECK ZONE
+  strcat(intBuffer, "-");                                   // FIRE ALARM TODO
+  strcat(intBuffer, "-");                                   // CHECK ZONE TODO
   strcat(intBuffer, (get_perimeter_only() ? "1" : "0"));    // PERIMETER ONLY (ARMED STAY/NIGHT)
   
   strcat(intBuffer, "----],"); //23
