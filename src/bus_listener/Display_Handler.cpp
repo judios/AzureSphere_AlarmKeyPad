@@ -224,6 +224,13 @@ void Display_Handler::to_string(char *intBuffer) {
 
 void Display_Handler::debug_to_string(char *intBuffer) {
   memset(intBuffer, 0x00, sizeof(intBuffer));
-  memcpy(intBuffer, buffer, F7_MESSAGE_LEN);
+  strcat(intBuffer, "F7:{" );
+  for ( byte i = 0; i < 12; i++ ) {
+      char aux[3];
+      sprintf(aux, "%02x", 0xff & buffer[i] );
+      strcat(intBuffer, aux );
+      strcat(intBuffer, " " );
+  }  
+  strcat(intBuffer, "}" );
 }
 

@@ -57,8 +57,8 @@ void setup() {
   Serial.begin(4800,SERIAL_8N2);
  
   vista20p.attach_display(message_updated);
-  vista20p.attach_status(status_upated);
-  vista20p.attach_f9(message_f9);
+  vista20p.attach_status(upated_event);
+  //ista20p.attach_f9(upated_event);
   vista20p.attach_debug(publish_debug_message);
   
   //vista20p.attach_unknown_message(debug_unknown); 
@@ -72,9 +72,9 @@ void loop() {
     
 }
 
-void message_updated(Display_Handler mensaje) {  
+void message_updated(Display_Handler message) {  
     // 32 characters
-    mensaje.get_display_message(messageBuffer);
+    message.get_display_message(messageBuffer);
 
     lcd.clear(); //Use it to clear the LCD Widget
 
@@ -85,20 +85,18 @@ void message_updated(Display_Handler mensaje) {
     strncpy(subbuff, messageBuffer+16, 16);
     lcd.print(0, 1, subbuff);
   
-}
-
-
-void status_upated(Status_Handler new_status) {
-    new_status.to_string(messageBuffer);
-    publish_debug_message(messageBuffer);    
-}
-
-
-void message_f9(Msg9e_Handler new_message) {
-    new_message.to_string(messageBuffer);
+    message.debug_to_string(messageBuffer);
     publish_debug_message(messageBuffer);
 }
 
+
+void upated_event(Status_Handler new_status) {
+    new_status.to_string(messageBuffer);
+    publish_debug_message(messageBuffer); 
+
+    new_status.debug_to_string(messageBuffer);
+    publish_debug_message(messageBuffer);
+}
 
 void publish_debug_message(char *mensaje) {
     terminal.write( mensaje,strlen(mensaje) );

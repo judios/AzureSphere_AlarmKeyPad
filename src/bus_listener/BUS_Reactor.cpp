@@ -140,10 +140,10 @@ void BUS_Reactor::handleEvents() {
                   acknowledgeAddress();
                   
                   // IF there is no callback exit without processing
-                  if ( callbackDisplay == NULL ) {
-                      return;
+                  if ( callbackDisplay != NULL ) {
+                      (*callbackDisplay)(displayHandler);
                   }
-                  (*callbackDisplay)(displayHandler);
+
               }
               
             } else if ( cr == F6_ACK_EVENT ) {
@@ -242,13 +242,6 @@ void BUS_Reactor::attach_f9(panelF9Callback f9Callback ) {
 
 void BUS_Reactor::attach_debug(panelDebugProtocolCallback debugCallbackParam) {
     debugCallback = debugCallbackParam;
-    
-    if ( debugCallback != NULL ) {
-        //acknowledgeHandler.enable_debug( debugCallback );
-        //statusHandler.enable_debug( debugCallback );
-        //displayHandler.enable_debug( debugCallback );
-        //unkHandler.enable_debug( debugCallback );
-    }
 }
 
 void BUS_Reactor::deattach_debug() {
