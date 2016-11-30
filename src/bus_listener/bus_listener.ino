@@ -57,8 +57,8 @@ void setup() {
   Serial.begin(4800,SERIAL_8N2);
  
   vista20p.attach_display(message_updated);
-  //vista20p.attach_status(status_upated);
-  //vista20p.attach_f9(message_f9);
+  vista20p.attach_status(status_upated);
+  vista20p.attach_f9(message_f9);
   vista20p.attach_debug(publish_debug_message);
   
   //vista20p.attach_unknown_message(debug_unknown); 
@@ -87,16 +87,16 @@ void message_updated(Display_Handler mensaje) {
   
 }
 
-//61 Characters
+
 void status_upated(Status_Handler new_status) {
-
-      new_status.to_string(messageBuffer);
-
+    new_status.to_string(messageBuffer);
+    publish_debug_message(messageBuffer);    
 }
 
-//37 Characters
+
 void message_f9(Msg9e_Handler new_message) {
-      new_message.to_string(messageBuffer);
+    new_message.to_string(messageBuffer);
+    publish_debug_message(messageBuffer);
 }
 
 

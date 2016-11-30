@@ -52,11 +52,12 @@ class Status_Handler : public Event_Handler {
         int get_counter();
         int get_partition();
         int get_state();
-        char * get_state_str();
+        void get_state_str(char *);
         int get_armed_mode();
-        char * get_armed_mode_str();
+        void get_armed_mode_str(char *);
         int get_by_pass();
         int get_fault();
+        void get_fault_str(char *); 
         int get_count_down();
         virtual void to_string(char *);
         virtual void debug_to_string(char *);

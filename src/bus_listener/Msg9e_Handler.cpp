@@ -51,13 +51,14 @@ int Msg9e_Handler::handle_event(char et) {
  */
 void Msg9e_Handler::to_string(char *intBuffer) {
     memset(intBuffer, 0x00, sizeof(intBuffer));
-    sprintf( intBuffer, "!M9E:" ); 
+    sprintf( intBuffer, "!M9E:{" ); 
     char auxBuffer[8];
     
     for ( int i = 0 ; i< 7; i++ ) {        
-        sprintf( auxBuffer, "[%02x]", buffer[i] ); 
+        sprintf( auxBuffer, " %02x", 0xff & buffer[i] ); 
         strcat(intBuffer, auxBuffer );
     }
+    strcat(intBuffer, "}" );
    
 }
 
