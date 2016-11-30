@@ -38,6 +38,7 @@ int const F2_BYTE4_FAULT_COUNTING_EXIT = 0x02;
 int const F2_BYTE4_FAULT_COUNTING_ENTER = 0x03;
 int const F2_BYTE4_FAULT_ALARM = 0x04;
 int const F2_BYTE4_FAULT_BYPASSED = 0x06;
+int const F2_BYTE4_FAULT_PANIC = 0x08;
 
 
 class Status_Handler : public Event_Handler {
@@ -51,7 +52,9 @@ class Status_Handler : public Event_Handler {
         int get_counter();
         int get_partition();
         int get_state();
+        char * get_state_str();
         int get_armed_mode();
+        char * get_armed_mode_str();
         int get_by_pass();
         int get_fault();
         int get_count_down();

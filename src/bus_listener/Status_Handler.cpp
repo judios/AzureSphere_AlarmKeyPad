@@ -115,9 +115,31 @@ int Status_Handler::get_count_down() {
   return -1;
 }
 
+char * Status_Handler::get_state_str() {
+    if ( get_state() == F2_BYTE1_STATE_DISARMED ) {
+      return "DISARMED";
+    } else if ( get_state() == F2_BYTE1_STATE_ARMED ) {
+      return "ARMED";
+    } else if ( get_state() == F2_BYTE1_STATE_CHIME ) {
+      return "CHIME";
+    } else if ( get_state() == F2_BYTE1_STATE_BUSY ) {
+      return "BUSY";
+    } 
+    return "";
+}
+
+char * Status_Handler::get_armed_mode_str() {
+    if ( get_armed_mode() == F2_BYTE2_ARMED_MODE_STAY ) {
+      return "STAY";
+    } else if ( get_armed_mode() == F2_BYTE2_ARMED_MODE_AWAY ) {
+      return "AWAY";
+    }  
+}
+
 void Status_Handler::to_string(char *internalBuffer) {
     char auxBuffer[8];
     memset(internalBuffer, 0x00, sizeof(internalBuffer));
+    sprintf(internalBuffer,"{\"s\":\"%s\",\"m\":\"%s\",\"f\":\"%s\",\"a\":\"%s\"}", get_state_str(), get_armed_mode_str() );
     
     strcat(internalBuffer, "!AUI:");
     
@@ -171,8 +193,9 @@ void Status_Handler::to_string(char *internalBuffer) {
       strcat(internalBuffer, " ALARM:");  
     } else if ( get_fault() == F2_BYTE4_FAULT_BYPASSED ) {
       strcat(internalBuffer, " BYPASSED:");
+    } else if ( get_fault() == F2_BYTE4_FAULT_PANIC ) {
+      strcat(internalBuffer, " PANIC:");
     }
-       
 
 }
 
