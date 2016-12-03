@@ -34,7 +34,7 @@ WidgetTerminal terminal(V0);
 WidgetLCD lcd(V1);
 byte ip[] = {10, 1, 1, 190 };
 
-#define BUFFER_LEN 50
+#define BUFFER_LEN 100
 char messageBuffer[BUFFER_LEN];
 
 EthernetClient ethClient;
@@ -62,7 +62,7 @@ void setup() {
   vista20p.attach_debug(publish_debug_message);
   
   //vista20p.attach_unknown_message(debug_unknown); 
- 
+  publish_debug_message("CONNECTED");
 }
 
 void loop() {

@@ -177,7 +177,7 @@ void Status_Handler::to_string(char *internalBuffer) {
 void Status_Handler::debug_to_string(char *intBuffer) {
   memset(intBuffer, 0x00, sizeof(intBuffer));
   strcat(intBuffer, "F2:{" );
-  for ( byte i = 0; i < F2_MAX_MESSAGE_LEN; i++ ) {
+  for ( byte i = 0; i < get_read_size(); i++ ) {
       char aux[3];
       sprintf(aux, "%02x", 0xff & buffer[i] );
       strcat(intBuffer, aux );
