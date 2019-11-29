@@ -44,7 +44,10 @@
     <ClCompile Include="bus_listener\Event_Handler.c" />
     <ClCompile Include="bus_listener\Msg9e_Handler.c" />
     <ClCompile Include="bus_listener\Status_Handler.c" />
+    <ClCompile Include="i2c_drv.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="oled.c" />
+    <ClCompile Include="sd1306.c" />
     <UpToDateCheckInput Include="app_manifest.json" />
   </ItemGroup>
   <ItemGroup>
@@ -55,6 +58,10 @@
     <ClInclude Include="bus_listener\Event_Handler.h" />
     <ClInclude Include="bus_listener\Msg9e_Handler.h" />
     <ClInclude Include="bus_listener\Status_Handler.h" />
+    <ClInclude Include="font.h" />
+    <ClInclude Include="i2c_drv.h" />
+    <ClInclude Include="oled.h" />
+    <ClInclude Include="sd1306.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

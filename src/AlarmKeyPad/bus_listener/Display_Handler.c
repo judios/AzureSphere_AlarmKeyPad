@@ -203,6 +203,7 @@ void displayHandler_get_display_message(char *displayMessage) {
         displayMessage[i-12] = 0x40;
       } 
     }
+	displayMessage[32] = '\0';
         
 }
 

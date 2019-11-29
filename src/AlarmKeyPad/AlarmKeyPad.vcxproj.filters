@@ -48,6 +48,15 @@
     <ClCompile Include="AlarmKeyPad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sd1306.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="oled.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="i2c_drv.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bus_listener\Acknowledge_Handler.h">
@@ -69,6 +78,18 @@
       <Filter>Header Files\BusReactor</Filter>
     </ClInclude>
     <ClInclude Include="AlarmKeyPad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="oled.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sd1306.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="font.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="i2c_drv.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
