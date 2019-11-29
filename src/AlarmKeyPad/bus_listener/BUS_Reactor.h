@@ -1,6 +1,8 @@
 /*
     Copyright 2013 Jose Castellanos Molina
     
+	Modified in 2019 for use with AlarmKeyPad project by Julian Diaz
+    
     This file is part of homesecurity.
 
     homesecurity is free software: you can redistribute it and/or modify
@@ -16,81 +18,42 @@
     You should have received a copy of the GNU General Public License
     along with homesecurity.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef BUS_REACTOR_h
-#define BUS_REACTOR_h
+#pragma once
 
-#include "Arduino.h"
+#include "..\AlarmKeyPad.h"
 #include "Event_Handler.h"
 #include "Acknowledge_Handler.h"
 #include "Display_Handler.h"
 #include "Status_Handler.h"
 #include "Msg9e_Handler.h"
 
-int const KEY_MESSAGE_LEN = 20;
+#define KEY_MESSAGE_LEN  20
 
-extern "C" {
-    // callback function for Display Messages
-    typedef void (*panelDisplayCallback)(Display_Handler);
-}
+// callback function for Display Messages
+typedef void (*panelDisplayCallback)();
 
-extern "C" {
-    // callback function for Status updated Messages
-    typedef void (*panelStatusCallback)(Status_Handler);
-}
+// callback function for Status updated Messages
+typedef void (*panelStatusCallback)();
 
-extern "C" {
-    // callback function for Status updated Messages
-    typedef void (*panelF9Callback)(Msg9e_Handler);
-}
+// callback function for Status updated Messages
+typedef void (*panelF9Callback)();
 
-extern "C" {
-    // callback function to allow send to bus
-    typedef void (*panelDebugProtocolCallback)(char *);
-}
+// callback function to allow send to bus
+typedef void (*panelDebugProtocolCallback)(char *);
 
-class BUS_Reactor {
-private:
-    HardwareSerial *myAdemcoHardware;
 
-    // Serial Handlers
-    Acknowledge_Handler acknowledgeHandler;
-    Status_Handler statusHandler;
-    Display_Handler displayHandler;
-    Msg9e_Handler unkHandler;
 
     // Notification methods
-    void on_acknowledge();
-    void acknowledgeAddress();
-    HardwareSerial * getSerialHandler();
+void busReactor_on_acknowledge();
+void busReactor_acknowledgeAddress();      
     
+void busReactor_Init(int device_address);
 
-    // Callbacks references
-    panelStatusCallback callbackStatus;
-    panelDisplayCallback callbackDisplay;
-    panelDebugProtocolCallback debugCallback;
-    panelF9Callback callbackF9;
+  void busReactor_handleEvents();
+  void busReactor_request_to_send(const char *);
+  void busReactor_attach_display(panelDisplayCallback displayCallback);
+  void busReactor_attach_status(panelStatusCallback statusCallback);
+  void busReactor_attach_f9(panelF9Callback callbackF9);
+  void busReactor_attach_debug(panelDebugProtocolCallback debugCallback);
+  void busReactor_deattach_debug();
 
-    // Flag to track send request
-    boolean wantToSend;
-    
-    // Internal Device Address
-    int device_address;    
-    int sequence;
-    int header;
-    
-    char keys_to_send[KEY_MESSAGE_LEN];        
-    
-public:
-  // public methods
-  BUS_Reactor(HardwareSerial *,int device_address);
-  ~BUS_Reactor();
-  void handleEvents();
-  void request_to_send(const char *);
-  void attach_display(panelDisplayCallback displayCallback);
-  void attach_status(panelStatusCallback statusCallback);
-  void attach_f9(panelF9Callback callbackF9);
-  void attach_debug(panelDebugProtocolCallback debugCallback);
-  void deattach_debug();
-};
-
-#endif

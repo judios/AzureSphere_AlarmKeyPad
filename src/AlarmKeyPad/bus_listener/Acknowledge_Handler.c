@@ -1,6 +1,8 @@
 /*
     Copyright 2013 Jose Castellanos Molina
     
+	Modified in 2019 for use with AlarmKeyPad project by Julian Diaz
+
     This file is part of homesecurity.
 
     homesecurity is free software: you can redistribute it and/or modify
@@ -17,54 +19,55 @@
     along with homesecurity.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Acknowledge_Handler.h"
 
-#include "Arduino.h"
-#include "Msg9e_Handler.h"
+char buffer[F6_MESSAGE_LEN + 2];
 
-/* 
- * Constructor 
- */
-Msg9e_Handler::Msg9e_Handler() : Event_Handler() {
+void acknowledgeHandler_Init() {
     
 }
 
 /* 
  * Reset the buffer to zero
  */
-void Msg9e_Handler::reset() {
+void acknowledgeHandler_reset() {
     memset(buffer, 0x00, sizeof(buffer));
 }
 
 /* 
- * Reads from the serial port F9 message
+ * Reads from the serial port f6 message
  */
-int Msg9e_Handler::handle_event(char et) {
-    reset();    
-    buffer[0] = (unsigned char)(et & 0xff);
-    read_chars( F9E_MESSAGE_LEN, buffer );
+int acknowledgeHandler_handle_event(char et) {
+	acknowledgeHandler_reset();
+    buffer[0] = (unsigned char)(et & 0x00ff);
+    read_chars( F6_MESSAGE_LEN, buffer );
     return 1;
 }
 
+/* 
+ * Return the device adress acknowledged
+ */
+int acknowledgeHandler_get_ack_address() {
+    return (int)buffer[1];
+}
+
+/* 
+ * Return the sequence number
+ */
+int acknowledgeHandler_get_seq_number() {
+    return (int)buffer[2];
+}
 
 /* 
  * String representation of the message
  */
-void Msg9e_Handler::to_string(char *intBuffer) {
-    memset(intBuffer, 0x00, sizeof(intBuffer));
-    sprintf( intBuffer, "F9:{" ); 
-    char auxBuffer[8];
-    
-    for ( int i = 0 ; i< 7; i++ ) {        
-        sprintf( auxBuffer, " %02x", 0xff & buffer[i] ); 
-        strcat(intBuffer, auxBuffer );
-    }
-    strcat(intBuffer, "}" );
-   
+void acknowledgeHandler_to_string(char *auxBuffer) {
+    sprintf( auxBuffer, "!ACK:[%d][%02x]", acknowledgeHandler_get_ack_address(), 
+		acknowledgeHandler_get_seq_number() );
+
 }
 
-void Msg9e_Handler::debug_to_string(char *intBuffer) {
+void acknowledgeHandler_debug_to_string(char *intBuffer) {
   memset(intBuffer, 0x00, sizeof(intBuffer));
-  memcpy(intBuffer, buffer, F9E_MESSAGE_LEN);
+  memcpy(intBuffer, buffer, F6_MESSAGE_LEN);
 }
-
-

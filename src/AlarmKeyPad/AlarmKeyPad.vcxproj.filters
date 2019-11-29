@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\BusReactor">
+      <UniqueIdentifier>{4214e168-3f23-4a0e-bf97-195c373fecdf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\BusReactor">
+      <UniqueIdentifier>{8e158fc6-974d-4c14-a85a-02561b145d58}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <UpToDateCheckInput Include="app_manifest.json" />
@@ -21,5 +27,49 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bus_listener\Acknowledge_Handler.c">
+      <Filter>Source Files\BusReactor</Filter>
+    </ClCompile>
+    <ClCompile Include="bus_listener\BUS_Reactor.c">
+      <Filter>Source Files\BusReactor</Filter>
+    </ClCompile>
+    <ClCompile Include="bus_listener\Display_Handler.c">
+      <Filter>Source Files\BusReactor</Filter>
+    </ClCompile>
+    <ClCompile Include="bus_listener\Event_Handler.c">
+      <Filter>Source Files\BusReactor</Filter>
+    </ClCompile>
+    <ClCompile Include="bus_listener\Msg9e_Handler.c">
+      <Filter>Source Files\BusReactor</Filter>
+    </ClCompile>
+    <ClCompile Include="bus_listener\Status_Handler.c">
+      <Filter>Source Files\BusReactor</Filter>
+    </ClCompile>
+    <ClCompile Include="AlarmKeyPad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bus_listener\Acknowledge_Handler.h">
+      <Filter>Header Files\BusReactor</Filter>
+    </ClInclude>
+    <ClInclude Include="bus_listener\Bus_Reactor.h">
+      <Filter>Header Files\BusReactor</Filter>
+    </ClInclude>
+    <ClInclude Include="bus_listener\Display_Handler.h">
+      <Filter>Header Files\BusReactor</Filter>
+    </ClInclude>
+    <ClInclude Include="bus_listener\Event_Handler.h">
+      <Filter>Header Files\BusReactor</Filter>
+    </ClInclude>
+    <ClInclude Include="bus_listener\Msg9e_Handler.h">
+      <Filter>Header Files\BusReactor</Filter>
+    </ClInclude>
+    <ClInclude Include="bus_listener\Status_Handler.h">
+      <Filter>Header Files\BusReactor</Filter>
+    </ClInclude>
+    <ClInclude Include="AlarmKeyPad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

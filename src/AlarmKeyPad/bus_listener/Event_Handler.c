@@ -1,6 +1,8 @@
 /*
     Copyright 2013 Jose Castellanos Molina
     
+	Modified in 2019 for use with AlarmKeyPad project by Julian Diaz
+    
     This file is part of homesecurity.
 
     homesecurity is free software: you can redistribute it and/or modify
@@ -16,31 +18,27 @@
     You should have received a copy of the GNU General Public License
     along with homesecurity.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Arduino.h"
+
 #include "Event_Handler.h"
 
-/* 
- * Constructor 
- */
-Event_Handler::Event_Handler() {
 
-}
-
+char const F2_STATUS_EVENT = 0xF2;
+char const F6_ACK_EVENT = 0xF6;
+char const F7_DISPLAY_EVENT = 0xF7;
+char const F9E_UNK_EVENT = 0xF9;
 
 /*
  * Reads N Chars from the serial port
  * @param int ct number of characters to read
  * @param char *bufferHex destination buffer
  */
-void Event_Handler::read_chars(int ct, char *bufferHex ) {
-  char c;
+void read_chars(int ct, char *bufferHex ) {
+
   int x=1;
 	
   while (x < ct) {
-    if (myAdemco->available()) {
-      c = myAdemco->read();
-
-      bufferHex[ x ] = (unsigned char)(c & 0x00ff);
+    if (alarmKeyPad_Available()) {
+      bufferHex[ x ] = alarmKeyPad_Read();
       x++;
     }
   }
@@ -54,33 +52,23 @@ void Event_Handler::read_chars(int ct, char *bufferHex ) {
  * @param char *bufferHex destination buffer
  * @return int numbers of characters read, -1 if no enought space to store read data
  */
-int Event_Handler::read_chars_dyn(char *bufferHex) {
-  char c;
-  int x=0;
-  int limit = 0;
+int read_chars_dyn(char* bufferHex) {
 
-  // wait for the rest of the data
-  while (myAdemco->available() == 0 );
+	short x = 2, limit = 0;
 
-  limit = (int)myAdemco->read();
-  
-  bufferHex[ (x+1) ] = limit;
-  while (x < limit) {
-    if (myAdemco->available() > 0) {
-      c = myAdemco->read();
+	// wait for the rest of the data
+	while (alarmKeyPad_Available() == 0);
 
-      bufferHex[ (x+2) ] = (unsigned char)(c & 0x00ff);
-      x++;
-    }
-  }
-  
-  x++;
-    
-  return x;
+	bufferHex[1] = alarmKeyPad_Read();
+
+	limit = bufferHex[1] + 2;
+	while (x < limit) {
+		if (alarmKeyPad_Available() > 0) {
+			bufferHex[x] = alarmKeyPad_Read();
+			x++;
+		}
+	}
+	return x;
 }
 
-
-void Event_Handler::set_serial_handler(Stream *myAdemcoSerial) {
-    myAdemco = myAdemcoSerial;
-}
 

@@ -25,7 +25,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
-    <TargetSysroot>3</TargetSysroot>
+    <TargetSysroot>3+Beta1909</TargetSysroot>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -37,8 +37,24 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClCompile Include="AlarmKeyPad.c" />
+    <ClCompile Include="bus_listener\Acknowledge_Handler.c" />
+    <ClCompile Include="bus_listener\BUS_Reactor.c" />
+    <ClCompile Include="bus_listener\Display_Handler.c" />
+    <ClCompile Include="bus_listener\Event_Handler.c" />
+    <ClCompile Include="bus_listener\Msg9e_Handler.c" />
+    <ClCompile Include="bus_listener\Status_Handler.c" />
     <ClCompile Include="main.c" />
     <UpToDateCheckInput Include="app_manifest.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AlarmKeyPad.h" />
+    <ClInclude Include="bus_listener\Acknowledge_Handler.h" />
+    <ClInclude Include="bus_listener\Bus_Reactor.h" />
+    <ClInclude Include="bus_listener\Display_Handler.h" />
+    <ClInclude Include="bus_listener\Event_Handler.h" />
+    <ClInclude Include="bus_listener\Msg9e_Handler.h" />
+    <ClInclude Include="bus_listener\Status_Handler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

@@ -1,6 +1,8 @@
 /*
     Copyright 2013 Jose Castellanos Molina
     
+	Modified in 2019 for use with AlarmKeyPad project by Julian Diaz
+    
     This file is part of homesecurity.
 
     homesecurity is free software: you can redistribute it and/or modify
@@ -16,28 +18,21 @@
     You should have received a copy of the GNU General Public License
     along with homesecurity.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#pragma once
+
 #ifndef EVENT_HANDLER_H
 #define EVENT_HANDLER_H
 
-#include "Arduino.h"
+extern char const F2_STATUS_EVENT;
+extern char const F6_ACK_EVENT;
+extern char const F7_DISPLAY_EVENT;
+extern char const F9E_UNK_EVENT;
 
-int const F2_STATUS_EVENT = 0xFFF2;
-int const F6_ACK_EVENT = 0xFFF6;
-int const F7_DISPLAY_EVENT = 0xFFF7;
-int const F9E_UNK_EVENT = 0xFFF9;
+#include "..\AlarmKeyPad.h"
 
-class Event_Handler {
-private:
-  Stream *myAdemco;
-protected:
-  void read_chars(int ct, char *bufferHex );
-  int read_chars_dyn(char *bufferHex);
-public:
-  Event_Handler();
-  virtual int handle_event (char et) = 0;
-  virtual void to_string(char *) = 0;
-  virtual void debug_to_string(char *) = 0;
-  void set_serial_handler(Stream *myAdemco);
-};
+void read_chars(int ct, char *bufferHex );
+int read_chars_dyn(char *bufferHex);
+
 
 #endif

@@ -1,6 +1,8 @@
 /*
     Copyright 2013 Jose Castellanos Molina
     
+	Modified in 2019 for use with AlarmKeyPad project by Julian Diaz
+    
     This file is part of homesecurity.
 
     homesecurity is free software: you can redistribute it and/or modify
@@ -22,19 +24,13 @@
 
 #include "Event_Handler.h"
 
-int const F9E_MESSAGE_LEN = 6;
+#define  F9E_MESSAGE_LEN 6
 
-class Msg9e_Handler : public Event_Handler {
-    public:
-        Msg9e_Handler();
-        virtual int handle_event (char et);
-        void reset();
-        virtual void to_string(char *);
-        virtual void debug_to_string(char *);
-    private:
-        char buffer[F9E_MESSAGE_LEN+4];
-};
-
+void msg9eHandler_Init();
+int msg9eHandler_handle_event (char et);
+void msg9eHandler_reset();
+void msg9eHandler_to_string(char *);
+void msg9eHandler_debug_to_string(char *);
 
 
 #endif
