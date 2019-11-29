@@ -5,39 +5,63 @@
 
 #include <applibs/log.h>
 #include <applibs/gpio.h>
+#include <applibs/i2c.h>
+
+#include "AlarmKeyPad.h"
+#include "bus_listener/Bus_Reactor.h"
+
+#define BUFFER_LEN 100
+
+char messageBuffer[BUFFER_LEN];
+void publish_debug_message(char* mensaje) 
+{
+	Log_Debug(mensaje);
+}
+
+void upated_event() {
+	statusHandler_to_string(messageBuffer);
+
+	Log_Debug("\nStatus to string\n");
+	publish_debug_message(messageBuffer);
+
+	statusHandler_debug_to_string(messageBuffer);
+	Log_Debug("\nStatus debug to string\n");
+	publish_debug_message(messageBuffer);
+}
+
+void message_updated() {
+	// 32 characters
+	displayHandler_get_display_message(messageBuffer);
+
+	Log_Debug("\nDisplay Message\n");
+	Log_Debug(messageBuffer);
+
+	displayHandler_debug_to_string(messageBuffer);
+	Log_Debug("\nDisplay debug to string\n");
+	publish_debug_message(messageBuffer);
+}
+
 
 int main(void)
 {
-    // This minimal Azure Sphere app repeatedly toggles GPIO 9, which is the green channel of RGB
-    // LED 1 on the MT3620 RDB.
-    // If your device exposes different GPIOs, you might need to change this value. For example,
-    // to run the app on a Seeed mini-dev kit, change the GPIO from 9 to 7 in the call to
-    // GPIO_OpenAsOutput and in the app_manifest.json to blink its LED. Check with your hardware
-    // manufacturer to determine which GPIOs are available.
-    // Use this app to test that device and SDK installation succeeded that you can build,
-    // deploy, and debug an app with Visual Studio, and that you can deploy an app over the air,
-    // per the instructions here: https://docs.microsoft.com/azure-sphere/quickstarts/qs-overview
-    //
-    // It is NOT recommended to use this as a starting point for developing apps; instead use
-    // the extensible samples here: https://github.com/Azure/azure-sphere-samples
-    Log_Debug(
-        "\nVisit https://github.com/Azure/azure-sphere-samples for extensible samples to use as a "
-        "starting point for full applications.\n");
+	alarmKeyPad_Init();
+	if (uartFd < 0)
+	{
+		Log_Debug("ERROR: Could not open UART: %s (%d).\n", strerror(errno), errno);
+		return -1;
+	}
+	else
+	{
+		Log_Debug("KeyPad created on UART (%d)", uartFd);
+	}
+	   
+	busReactor_Init(DEVICE_ADDRESS);
+	busReactor_attach_display(message_updated);
+	busReactor_attach_status(upated_event);
+	busReactor_attach_debug(publish_debug_message);
 
-    // Change this GPIO number and the number in app_manifest.json if required by your hardware.
-    int fd = GPIO_OpenAsOutput(9, GPIO_OutputMode_PushPull, GPIO_Value_High);
-    if (fd < 0) {
-        Log_Debug(
-            "Error opening GPIO: %s (%d). Check that app_manifest.json includes the GPIO used.\n",
-            strerror(errno), errno);
-        return -1;
-    }
 
-    const struct timespec sleepTime = {1, 0};
     while (true) {
-        GPIO_SetValue(fd, GPIO_Value_Low);
-        nanosleep(&sleepTime, NULL);
-        GPIO_SetValue(fd, GPIO_Value_High);
-        nanosleep(&sleepTime, NULL);
+		busReactor_handleEvents();
     }
 }

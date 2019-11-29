@@ -6,8 +6,8 @@
   "CmdArgs": [],
   "Capabilities": {
     "AllowedConnections": [],
-    "Gpio": [ 9 ],
-    "Uart": [],
+    "Gpio": [ 17 ],
+    "Uart": [ "ISU1" ],
     "WifiConfig": false
   },
   "ApplicationType":"Default"
