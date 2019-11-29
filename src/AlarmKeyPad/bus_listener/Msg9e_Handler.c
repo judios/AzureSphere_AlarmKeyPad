@@ -1,6 +1,8 @@
 /*
     Copyright 2013 Jose Castellanos Molina
     
+	Modified in 2019 for use with AlarmKeyPad project by Julian Diaz
+    
     This file is part of homesecurity.
 
     homesecurity is free software: you can redistribute it and/or modify
@@ -18,56 +20,55 @@
 */
 
 
-#include "Arduino.h"
-#include "Acknowledge_Handler.h"
+
+#include "Msg9e_Handler.h"
+
+char buffer[F9E_MESSAGE_LEN + 4];
 
 /* 
  * Constructor 
  */
-Acknowledge_Handler::Acknowledge_Handler() : Event_Handler() {
+void msg9eHandler_Init() {
     
 }
 
 /* 
  * Reset the buffer to zero
  */
-void Acknowledge_Handler::reset() {
+void msg9eHandler_reset() {
     memset(buffer, 0x00, sizeof(buffer));
 }
 
 /* 
- * Reads from the serial port f6 message
+ * Reads from the serial port F9 message
  */
-int Acknowledge_Handler::handle_event(char et) {
-    reset();    
-    buffer[0] = (unsigned char)(et & 0x00ff);
-    read_chars( F6_MESSAGE_LEN, buffer );
+int msg9eHandler_handle_event(char et) {
+	msg9eHandler_reset();
+    buffer[0] = (unsigned char)(et & 0xff);
+    read_chars( F9E_MESSAGE_LEN, buffer );
     return 1;
 }
 
-/* 
- * Return the device adress acknowledged
- */
-int Acknowledge_Handler::get_ack_address() {
-    return (int)buffer[1];
-}
-
-/* 
- * Return the sequence number
- */
-int Acknowledge_Handler::get_seq_number() {
-    return (int)buffer[2];
-}
 
 /* 
  * String representation of the message
  */
-void Acknowledge_Handler::to_string(char *auxBuffer) {
-    sprintf( auxBuffer, "!ACK:[%d][%02x]", get_ack_address(), get_seq_number() );
-
+void msg9eHandler_to_string(char *intBuffer) {
+    memset(intBuffer, 0x00, sizeof(intBuffer));
+    sprintf( intBuffer, "F9:{" ); 
+    char auxBuffer[8];
+    
+    for ( int i = 0 ; i< 7; i++ ) {        
+        sprintf( auxBuffer, " %02x", 0xff & buffer[i] ); 
+        strcat(intBuffer, auxBuffer );
+    }
+    strcat(intBuffer, "}" );
+   
 }
 
-void Acknowledge_Handler::debug_to_string(char *intBuffer) {
+void msg9eHandler_debug_to_string(char *intBuffer) {
   memset(intBuffer, 0x00, sizeof(intBuffer));
-  memcpy(intBuffer, buffer, F6_MESSAGE_LEN);
+  memcpy(intBuffer, buffer, F9E_MESSAGE_LEN);
 }
+
+

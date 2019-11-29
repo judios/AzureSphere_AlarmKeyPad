@@ -1,41 +1,32 @@
-# VISTA ICM Replacement
-This project is designed to allow you to connect an Arduino-like device to your Honeywell (Ademco) security panel and "listen in" for key events.  This project is an implemenation of reverse engineering the Ademco ECP keypad bus.
 
+
+# VISTA ICM Replacement
+This project is designed to allow you to connect an Azure Sphere MT3620 based device to your Honeywell (Ademco) security panel and "listen in" for key events.  This project is an implemenation of the reverse engineering of the Ademco ECP keypad bus devloped by Mark Kimsal, and modified by Morpheus (See credits at the bottom of this page). 
 
 
 #Hardware Setup 
-Using a MAX3232 Breakout [MAX3232](https://www.sparkfun.com/products/11189)
-Connect the data-out wire (yellow) to a max3232 (R1IN) and the output (R1OUT) to pin 0(RX) on the Arduino. 
-Connect the data-in wire (green) to a max3232 (T1OUT) and the output (T1IN) to pin 1(TX) on the Arduino. 
 
-                 Read Only Interface                 |   Arduino    
+This project is being developed using the following:
+ - Honeywell Vista 20P Security Panel Version 10.23
+ - Azure Sphere MT3620 Starter Kit by Avnet with OLED Display.
+ - HiLetgo Mini RS232 to TTL (uses MAX3232).
+
+Connect Vista 20 Terminal 7 (data-out wire, yellow) to a max3232 (R1IN) and the output (R1OUT) to pin GPIO28 (RX0, RX in Socket 1) on the Azure Sphere Kit.  Alternatively, one can use GPIO33(RX1, MISO in Socket 1)
+
+                 Read Only Interface                 |   MT3620    
                                                      |             
     +---------+               +------------+         |  +--------+ 
     |         | Yellow Wire   |   MAX3232  |TTL      |  |        | 
-    | Ademco  |-------------->|R1IN   R1OUT|---------|->|0(RX)   | 
+    | Ademco  |-------------->|R1IN   R1OUT|---------|->|GPIO28  | 
     |Vista 20P| 12V           |            | 5V      |  |        | 
     |  Panel  |               |            |         |  |        | 
-    |         |<--------------|T1OUT   T1IN|<--------|--|1(TX)   | 
+    |         |               |T1OUT   T1IN|         |  |        | 
     +---------+ Green Wire    +------------+         |  +--------+ 
    
                                                      |             
-#Config HardwareSerial
-```c
-#define DEVICE_ADDRESS 19
+#Project Scope
 
-HardwareSerial *myPanelSerial = &Serial1;
-BUS_Reactor vista20p(&myPanelSerial, DEVICE_ADDRESS)
-```                  
-
-#IOT
-This sketch publishes changes to a free [blynk server](http://www.blynk.cc/) you can download the native android aplication to see LCD on phone
-and use a terminal to see log and write to the panel. LCD should be on Virtual PIN1 and Terminal in Virtual PIN 0.
-
-Disarmed                   |  Fault                    |  System low Bat 
-:-------------------------:|:-------------------------:|:-------------------------:
-![alt text](https://raw.githubusercontent.com/matlock08/homesecurity/master/docs/disarmed.png "Disarmed")  |  ![alt text](https://raw.githubusercontent.com/matlock08/homesecurity/master/docs/fault.png "Fault")  |  ![alt text](https://raw.githubusercontent.com/matlock08/homesecurity/master/docs/system_lo_bat.png "System low BAT")  
-
- 
+The initial project scope is set to monitor the panel and output the messages to an OLED display connected to the MT3620 Starter Kit. The source code developed by Morpheus had to be translated to c in order for this to be used in a Azure Sphere high level App.                 
 
 #Protocol
 Essentially, the data out wire uses 8-bit, even parity, 1 stop bit, inverted, NRZ +12 volt TTL signals.  But, the data out wire also acts somewhat like a clock wire sometimes.  
@@ -86,3 +77,5 @@ Other projects that were invaluable to me are:
   * [http://www.lxtreme.nl/ols/]
 * Original Code Mark Kimsal (homesecurity):
   * [https://github.com/markkimsal/homesecurity]
+* Modified  Code Morpheus (homesecurity):
+  * [https://github.com/matlock08/homesecurity]

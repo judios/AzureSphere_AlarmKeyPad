@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29025.244
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AlarmKeyPad", "AlarmKeyPad\AlarmKeyPad.vcxproj", "{C6142B9B-A773-4ADA-8E2D-90D0F62663FB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
+		Release|ARM = Release|ARM
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C6142B9B-A773-4ADA-8E2D-90D0F62663FB}.Debug|ARM.ActiveCfg = Debug|ARM
+		{C6142B9B-A773-4ADA-8E2D-90D0F62663FB}.Debug|ARM.Build.0 = Debug|ARM
+		{C6142B9B-A773-4ADA-8E2D-90D0F62663FB}.Release|ARM.ActiveCfg = Release|ARM
+		{C6142B9B-A773-4ADA-8E2D-90D0F62663FB}.Release|ARM.Build.0 = Release|ARM
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {68C619C3-120A-417E-85AB-CFE7BA185398}
+	EndGlobalSection
+EndGlobal

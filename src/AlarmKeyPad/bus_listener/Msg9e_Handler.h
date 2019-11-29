@@ -1,6 +1,8 @@
 /*
     Copyright 2013 Jose Castellanos Molina
     
+	Modified in 2019 for use with AlarmKeyPad project by Julian Diaz
+    
     This file is part of homesecurity.
 
     homesecurity is free software: you can redistribute it and/or modify
@@ -17,26 +19,18 @@
     along with homesecurity.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef F6_MESSAGE_HANDLER_H
-#define F6_MESSAGE_HANDLER_H
+#ifndef F9E_MESSAGE_HANDLER_H
+#define F9E_MESSAGE_HANDLER_H
 
 #include "Event_Handler.h"
 
-int const F6_MESSAGE_LEN = 3;
+#define  F9E_MESSAGE_LEN 6
 
-class Acknowledge_Handler : public Event_Handler {
-    public:
-        Acknowledge_Handler();
-        virtual int handle_event (char et);
-        void reset();
-        int get_ack_address();
-        int get_seq_number();
-        virtual void to_string(char *);
-        virtual void debug_to_string(char *);
-    private:
-        char buffer[F6_MESSAGE_LEN+2];
-};
-
+void msg9eHandler_Init();
+int msg9eHandler_handle_event (char et);
+void msg9eHandler_reset();
+void msg9eHandler_to_string(char *);
+void msg9eHandler_debug_to_string(char *);
 
 
 #endif

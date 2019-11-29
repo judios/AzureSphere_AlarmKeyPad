@@ -1,0 +1,14 @@
+{
+  "SchemaVersion": 1,
+  "Name" : "AlarmKeyPad",
+  "ComponentId" : "216c116e-8879-42ae-8c12-e358fa2df6ff",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": [],
+  "Capabilities": {
+    "AllowedConnections": [],
+    "Gpio": [ 17 ],
+    "Uart": [ "ISU1" ],
+    "WifiConfig": false
+  },
+  "ApplicationType":"Default"
+}
