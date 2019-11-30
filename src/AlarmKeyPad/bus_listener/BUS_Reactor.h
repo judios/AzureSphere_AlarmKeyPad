@@ -42,6 +42,13 @@ typedef void (*panelF9Callback)();
 typedef void (*panelDebugProtocolCallback)(char *);
 
 
+// Commands
+typedef enum {
+	clearFaults = 0,
+	armAway = 1,
+	armStay = 2,
+	disarm = 3
+}runCmd;
 
     // Notification methods
 void busReactor_on_acknowledge();
@@ -56,4 +63,5 @@ void busReactor_Init(int device_address);
   void busReactor_attach_f9(panelF9Callback callbackF9);
   void busReactor_attach_debug(panelDebugProtocolCallback debugCallback);
   void busReactor_deattach_debug();
+  int busReactor_RunCommand(runCmd cmd);
 

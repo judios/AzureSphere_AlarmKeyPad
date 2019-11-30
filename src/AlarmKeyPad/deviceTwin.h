@@ -14,6 +14,7 @@
   Telemetry Event
     "triggered"
 
+
 */
 
 #include "parson.h"
@@ -57,3 +58,7 @@ void checkAndUpdateDeviceTwin(char*, void*, data_type_t, bool);
 void deviceTwinChangedHandler(JSON_Object* desiredProperties);
 
 void deviceMessageReceived(const char* payload);
+
+int deviceDirectMethod(const char* directMethodName, const char* payload,
+	size_t payloadSize, char** responsePayload,
+	size_t* responsePayloadSize);

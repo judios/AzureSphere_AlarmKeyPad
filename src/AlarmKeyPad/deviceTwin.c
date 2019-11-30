@@ -9,9 +9,6 @@
 
 #include <applibs/log.h>
 
-//twin_t twinArray[] = {
-//	{.twinKey = "zone1", twinVar = &zones[0], .twinType = TYPE_BOOL}
-//}
 
 void checkAndUpdateDeviceTwin(char* property, void* value, data_type_t type, bool ioTCentralFormat)
 {
@@ -92,4 +89,81 @@ void deviceTwinChangedHandler(JSON_Object* desiredProperties)
 void deviceMessageReceived(const char* payload)
 {
 
+}
+
+int deviceDirectMethod(const char* directMethodName, const char* payload,
+	size_t payloadSize, char** responsePayload,
+	size_t* responsePayloadSize)
+{
+	if (strcmp(directMethodName, "clearFaults") == 0)
+	{
+
+		static const char clearFaultExecuted[] = "\"Fault Zones Cleared\"";
+		*responsePayloadSize = strlen(clearFaultExecuted);
+		*responsePayload = (unsigned char*)malloc(*responsePayloadSize);
+		if (*responsePayload != NULL) {
+			strncpy((char*)(*responsePayload), clearFaultExecuted, *responsePayloadSize);
+		}
+		else {
+			Log_Debug("ERROR: Cannot create response message for method call.\n");
+			abort();
+		}
+		busReactor_RunCommand(clearFaults);
+		Log_Debug("Clear Faults Called\n");
+		return 1;
+	}
+
+	if (strcmp(directMethodName, "armAwayCmd") == 0)
+	{
+
+		static const char clearFaultExecuted[] = "\"Armed Away\"";
+		*responsePayloadSize = strlen(clearFaultExecuted);
+		*responsePayload = (unsigned char*)malloc(*responsePayloadSize);
+		if (*responsePayload != NULL) {
+			strncpy((char*)(*responsePayload), clearFaultExecuted, *responsePayloadSize);
+		}
+		else {
+			Log_Debug("ERROR: Cannot create response message for method call.\n");
+			abort();
+		}
+		busReactor_RunCommand(armAway);
+		Log_Debug("Arm Away Called\n");
+		return 1;
+	}
+
+	if (strcmp(directMethodName, "armStayCmd") == 0)
+	{
+
+		static const char clearFaultExecuted[] = "\"Armed Stay\"";
+		*responsePayloadSize = strlen(clearFaultExecuted);
+		*responsePayload = (unsigned char*)malloc(*responsePayloadSize);
+		if (*responsePayload != NULL) {
+			strncpy((char*)(*responsePayload), clearFaultExecuted, *responsePayloadSize);
+		}
+		else {
+			Log_Debug("ERROR: Cannot create response message for method call.\n");
+			abort();
+		}
+		busReactor_RunCommand(armStay);
+		Log_Debug("Arm Stay Called\n");
+		return 1;
+	}
+
+	if (strcmp(directMethodName, "disarmCmd") == 0)
+	{
+
+		static const char clearFaultExecuted[] = "\"Disarmed\"";
+		*responsePayloadSize = strlen(clearFaultExecuted);
+		*responsePayload = (unsigned char*)malloc(*responsePayloadSize);
+		if (*responsePayload != NULL) {
+			strncpy((char*)(*responsePayload), clearFaultExecuted, *responsePayloadSize);
+		}
+		else {
+			Log_Debug("ERROR: Cannot create response message for method call.\n");
+			abort();
+		}
+		busReactor_RunCommand(disarm);
+		Log_Debug("Disarm Called\n");
+		return 1;
+	}
 }

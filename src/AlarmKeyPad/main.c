@@ -179,6 +179,7 @@ int main(int argc, char* argv[])
 
 	AzureIoT_SetDeviceTwinUpdateCallback(&deviceTwinChangedHandler);
 	AzureIoT_SetMessageReceivedCallback(&deviceMessageReceived);
+	AzureIoT_SetDirectMethodCallback(&deviceDirectMethod);
 
 	if (!AzureIoT_SetupClient()) {
 		Log_Debug("ERROR: Failed to set up IoT Hub client\n");

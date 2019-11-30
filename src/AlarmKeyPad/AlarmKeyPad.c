@@ -31,10 +31,13 @@
 #include <time.h>
 
 int gpioLineFd = -1;
+int gpioTxFd = -1;
 int uartFd = -1;
 int rxb_head = 0;
 int rxb_tail = 0;
 char readBuffer[RX_BUFFER_SIZE];
+
+#define bit4800Delay 192000
 
 
 void alarmKeyPad_Init()
@@ -56,6 +59,12 @@ void alarmKeyPad_Init()
 		pulseIn function.
 	*/
 	gpioLineFd = GPIO_OpenAsInput(GPIO_LINE);
+
+	/* 
+	    Avoid using uart for the wire out. THe line high while in idle will
+		trigger a safe thread in the Alarm board.
+	*/
+	gpioTxFd = GPIO_OpenAsOutput(GPIO_TX, GPIO_OutputMode_PushPull, GPIO_Value_Low);
 
 }
 
@@ -99,23 +108,20 @@ int alarmKeyPad_Available()
 	return ((unsigned int)(RX_BUFFER_SIZE + rxb_head - rxb_tail)) % RX_BUFFER_SIZE;
 }
 
-size_t alarmKeyPad_Write(char val)
-{
-	ssize_t bytesSent = write(uartFd, &val, 1);
-	while(bytesSent == 0)
-		bytesSent = write(uartFd, &val, 1);
-
-	return bytesSent;
-}
-
 void alarmKeyPad_Flush()
 {
 }
 
-static unsigned long get_micros(void) {
+unsigned long get_nanos(void) {
 	struct timespec ts;
 	timespec_get(&ts, TIME_UTC);
-	return (unsigned long)ts.tv_sec * 1000000L + ts.tv_nsec/1000;
+	return (unsigned long)(ts.tv_sec * 1000000000L + ts.tv_nsec);
+}
+
+unsigned long get_micros(void) {
+	struct timespec ts;
+	timespec_get(&ts, TIME_UTC);
+	return (unsigned long)(ts.tv_sec * 1000000L + ts.tv_nsec / 1000);
 }
 
 unsigned long get_mills(void) {
@@ -124,19 +130,19 @@ unsigned long get_mills(void) {
 	return (unsigned long)(ts.tv_sec * 1000L + ts.tv_nsec / 1000000);
 }
 
-
-int alarmKeyPad_pulseIn(GPIO_Value_Type state, long time_out )
+int alarmKeyPad_pulseIn(GPIO_Value_Type state, long time_out)
 {
 	GPIO_Value_Type buttonState;
 	unsigned long start = get_micros(), pulse_start;
 	GPIO_GetValue(gpioLineFd, &buttonState);
-	
-	if (buttonState == state) 
+
+	if (buttonState == state)
 		return 0;
 
 	while (buttonState != state)
 	{
-		if (get_micros() - start > time_out) 
+		unsigned long tt1 = get_micros();
+		if (tt1 - start > time_out)
 			return 0;
 		GPIO_GetValue(gpioLineFd, &buttonState);
 	}
@@ -144,11 +150,92 @@ int alarmKeyPad_pulseIn(GPIO_Value_Type state, long time_out )
 
 	while (buttonState == (state))
 	{
-		if (get_micros() - start > time_out) 
+		if (get_micros() - start > time_out)
 			return 0;
 		GPIO_GetValue(gpioLineFd, &buttonState);
 	}
-	int res = (get_micros() - pulse_start) ;
-	Log_Debug("Pulse Duration = %d \n", res);
+	int res = (get_micros() - pulse_start);
+	//Log_Debug("Pulse Duration = %d \n", res);
 	return res;
+}
+
+void delayNanoseconds(int delay)
+{
+	unsigned long tt = get_nanos();
+	while (get_nanos() - tt < delay);
+}
+
+void delayMicroseconds(int delay)
+{
+	unsigned long tt = get_micros();
+	while (get_micros() - tt < delay);
+}
+
+void AlarmKeyPad_writeChar(uint8_t chr)
+{
+	uint8_t bits[13];
+	bits[0] = GPIO_Value_Low;
+	chr = ~chr;
+	int parity = 0;
+	int cBit = 0;
+	for (uint8_t i = 1; i < 9; i++)
+	{
+		cBit = chr & 1;
+		parity += cBit;
+		bits[i] = cBit;
+		chr >>= 1;
+	}
+	cBit = parity & 1;
+	bits[9] = cBit;
+	bits[10] = GPIO_Value_High;
+
+	//unsigned long tt = get_micros();
+	for (uint8_t i = 0; i < 11; i++)
+	{
+		GPIO_SetValue(gpioTxFd, bits[i]);
+		delayNanoseconds(bit4800Delay);
+	}
+	//tt = get_micros() - tt;
+	//float fact = 2291.6670 / tt;
+	//bit4800Delay = bit4800Delay * fact;
+	//Log_Debug("Time for Byte: %d\n", tt);
+}
+
+uint8_t bbit[12] = { 1,0,0,0,0,0,0,0,0,0,0,0 };
+void AlarmKeyPad_SendBit(uint8_t bit)
+{
+	bit = bit % 8 + 2;
+	bbit[bit] = 1;
+	for (uint8_t i = 0; i < 10; i++)
+	{
+		GPIO_SetValue(gpioTxFd, bbit[i]);
+		delayNanoseconds(bit4800Delay);
+	}
+
+	bbit[bit] = 0;
+}
+
+void AlarmKeyPad_txLow()
+{
+	GPIO_SetValue(gpioTxFd, GPIO_Value_Low);
+	delayNanoseconds(bit4800Delay);
+}
+
+void AlarmKeyPad_txHigh()
+{
+	GPIO_SetValue(gpioTxFd, GPIO_Value_High);
+	delayNanoseconds(bit4800Delay);
+}
+
+int AlarmKeyPad_waitChange()
+{
+	GPIO_Value_Type lineInit, lineState;
+	GPIO_GetValue(gpioLineFd, &lineInit);
+	GPIO_GetValue(gpioLineFd, &lineState);
+	unsigned long tt = get_micros();
+	while (lineState == lineInit)
+	{
+		GPIO_GetValue(gpioLineFd, &lineState);
+	}
+	return (int)get_micros() - tt;
 }
