@@ -30,7 +30,6 @@ extern int const F2_BYTE1_STATE_BUSY;
 extern int const F2_BYTE2_ARMED_MODE_STAY;
 extern int const F2_BYTE2_ARMED_MODE_AWAY;
 
-
 extern int const F2_BYTE4_FAULT_NORMAL;
 extern int const F2_BYTE4_FAULT_COUNTING_EXIT;
 extern int const F2_BYTE4_FAULT_COUNTING_ENTER;
@@ -54,11 +53,10 @@ void statusHandler_get_state_str(char*);
 int statusHandler_get_armed_mode();
 void statusHandler_get_armed_mode_str(char*);
 int statusHandler_get_by_pass();
+int statusHandler_get_fault();
 void statusHandler_get_fault_str(char*);
 int statusHandler_get_count_down();
 void statusHandler_to_string(char*);
 void statusHandler_debug_to_string(char*);
-
-
 
 #endif

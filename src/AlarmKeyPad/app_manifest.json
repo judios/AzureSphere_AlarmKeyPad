@@ -1,14 +1,19 @@
 {
   "SchemaVersion": 1,
-  "Name" : "AlarmKeyPad",
-  "ComponentId" : "216c116e-8879-42ae-8c12-e358fa2df6ff",
+  "Name": "AlarmKeyPad",
+  "ComponentId": "216c116e-8879-42ae-8c12-e358fa2df6ff",
   "EntryPoint": "/bin/app",
   "CmdArgs": [],
   "Capabilities": {
-    "AllowedConnections": [],
+    "AllowedConnections": [ "iotc-XXX...." ],
+    "AllowedTcpServerPorts": [],
+    "AllowedUdpServerPorts": [],
     "Gpio": [ 16 ],
     "Uart": [ "ISU0" ],
-    "WifiConfig": false
+    "I2cMaster": [ "ISU2" ],
+    "WifiConfig": true,
+    "NetworkConfig": false
   },
-  "ApplicationType":"Default"
+  "ApplicationType": "Default"
 }
+

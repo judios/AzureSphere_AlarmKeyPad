@@ -118,6 +118,13 @@ static unsigned long get_micros(void) {
 	return (unsigned long)ts.tv_sec * 1000000L + ts.tv_nsec/1000;
 }
 
+unsigned long get_mills(void) {
+	struct timespec ts;
+	timespec_get(&ts, TIME_UTC);
+	return (unsigned long)(ts.tv_sec * 1000L + ts.tv_nsec / 1000000);
+}
+
+
 int alarmKeyPad_pulseIn(GPIO_Value_Type state, long time_out )
 {
 	GPIO_Value_Type buttonState;

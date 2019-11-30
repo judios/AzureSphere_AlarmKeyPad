@@ -52,5 +52,6 @@ void alarmKeyPad_Flush();
 
 // use time_out= DEFAULT_PULSE_TIMEOUT
 int alarmKeyPad_pulseIn(GPIO_Value_Type state, long time_out);
+unsigned long get_mills(void);
 
 

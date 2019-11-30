@@ -38,29 +38,38 @@
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
     <ClCompile Include="AlarmKeyPad.c" />
+    <ClCompile Include="azure_iot_utilities.c" />
     <ClCompile Include="bus_listener\Acknowledge_Handler.c" />
     <ClCompile Include="bus_listener\BUS_Reactor.c" />
     <ClCompile Include="bus_listener\Display_Handler.c" />
     <ClCompile Include="bus_listener\Event_Handler.c" />
     <ClCompile Include="bus_listener\Msg9e_Handler.c" />
     <ClCompile Include="bus_listener\Status_Handler.c" />
+    <ClCompile Include="deviceTwin.c" />
     <ClCompile Include="i2c_drv.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="oled.c" />
+    <ClCompile Include="parson.c" />
     <ClCompile Include="sd1306.c" />
     <UpToDateCheckInput Include="app_manifest.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AlarmKeyPad.h" />
+    <ClInclude Include="applibs_versions.h" />
+    <ClInclude Include="azure_iot_utilities.h" />
+    <ClInclude Include="build_options.h" />
     <ClInclude Include="bus_listener\Acknowledge_Handler.h" />
     <ClInclude Include="bus_listener\Bus_Reactor.h" />
     <ClInclude Include="bus_listener\Display_Handler.h" />
     <ClInclude Include="bus_listener\Event_Handler.h" />
     <ClInclude Include="bus_listener\Msg9e_Handler.h" />
     <ClInclude Include="bus_listener\Status_Handler.h" />
+    <ClInclude Include="connection_strings.h" />
+    <ClInclude Include="deviceTwin.h" />
     <ClInclude Include="font.h" />
     <ClInclude Include="i2c_drv.h" />
     <ClInclude Include="oled.h" />
+    <ClInclude Include="parson.h" />
     <ClInclude Include="sd1306.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
@@ -70,7 +79,7 @@
       <AdditionalOptions>-Werror=implicit-function-declaration -fno-rtti %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <LibraryDependencies>applibs;pthread;gcc_s;c</LibraryDependencies>
+      <LibraryDependencies>applibs;pthread;gcc_s;c;azureiot</LibraryDependencies>
       <AdditionalOptions>-Wl,--no-undefined -nodefaultlibs %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
