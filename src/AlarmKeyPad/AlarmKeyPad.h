@@ -31,8 +31,8 @@
 #define HIGH 1
 #define LOW 0
 #define DEVICE_ADDRESS 20
-#define GPIO_LINE 17
-#define MT3620_ISU1_UART 5
+#define GPIO_LINE 16
+#define MT3620_ISU0_UART 4
 
 #define RX_BUFFER_SIZE 256
 

@@ -31,7 +31,6 @@
 #include <time.h>
 
 int gpioLineFd = -1;
-int adcFd = -1;
 int uartFd = -1;
 int rxb_head = 0;
 int rxb_tail = 0;
@@ -48,10 +47,15 @@ void alarmKeyPad_Init()
 	uartConfig.stopBits = UART_StopBits_One;
 	uartConfig.parity = UART_Parity_Even;
 	uartConfig.flowControl = UART_FlowControl_None;
-	uartFd = UART_Open(MT3620_ISU1_UART, &uartConfig);
+	uartFd = UART_Open(MT3620_ISU0_UART, &uartConfig);
 
+	/*
+	    Since a GPIO used for uart cannot be accessed directly, 
+		another input is required in order to be able to query 
+		the state of the RX line. This is to be used in the 
+		pulseIn function.
+	*/
 	gpioLineFd = GPIO_OpenAsInput(GPIO_LINE);
-	adcFd = ADC_Open(0);
 
 }
 
@@ -112,14 +116,6 @@ static unsigned long get_micros(void) {
 	struct timespec ts;
 	timespec_get(&ts, TIME_UTC);
 	return (unsigned long)ts.tv_sec * 1000000L + ts.tv_nsec/1000;
-}
-
-int get_state()
-{
-	uint32_t scl;
-	ADC_Poll(adcFd, 1, &scl);
-	if (scl < 1024) return 0;
-	return 1;
 }
 
 int alarmKeyPad_pulseIn(GPIO_Value_Type state, long time_out )
