@@ -32,6 +32,7 @@
 #define LOW 0
 #define DEVICE_ADDRESS 20
 #define GPIO_LINE 16
+#define GPIO_TX 2
 #define MT3620_ISU0_UART 4
 
 #define RX_BUFFER_SIZE 256
@@ -47,10 +48,15 @@ void alarmKeyPad_Init();
 extern int uartFd;
 char alarmKeyPad_Read();
 int alarmKeyPad_Available();
-size_t alarmKeyPad_Write(char val);
 void alarmKeyPad_Flush();
 
 // use time_out= DEFAULT_PULSE_TIMEOUT
 int alarmKeyPad_pulseIn(GPIO_Value_Type state, long time_out);
-
-
+unsigned long get_micros(void);
+unsigned long get_mills(void);
+void delayMicroseconds(int delay);
+void AlarmKeyPad_writeChar(uint8_t chr);
+void AlarmKeyPad_SendBit(uint8_t bit);
+void AlarmKeyPad_txLow();
+void AlarmKeyPad_txHigh();
+int AlarmKeyPad_waitChange();

@@ -34,22 +34,30 @@ bool wantToSend;
 // Internal Device Address
 int device_address;
 int sequence;
-int header;
+int8_t header;
 char keys_to_send[KEY_MESSAGE_LEN];
 
 /*
  * Called after and F6 even to give us the chance to
  * write to the BUS, if it is our address
+ *//*
+ * Called after and F6 even to give us the chance to
+ * write to the BUS, if it is our address
  */
+int count = 0;
 void busReactor_on_acknowledge() {
 
-	if (acknowledgeHandler_get_ack_address() == device_address) {
+	int devAdrr = acknowledgeHandler_get_ack_address();
+	Log_Debug("Device Address %d\n", devAdrr);
+	delayMicroseconds(210);
+	if (devAdrr == device_address) {
 
-		// TODO: Enable parity
-
-		int charsSend = strlen(keys_to_send);
+		uint8_t charsSend = strlen(keys_to_send);
 
 		if (charsSend > 0 && charsSend < KEY_MESSAGE_LEN) {
+			delayMicroseconds(600); 
+			AlarmKeyPad_txHigh();
+			sequence = acknowledgeHandler_get_seq_number();
 			int bufferIndex = 0;
 
 			// 2 MSB represent the Seq
@@ -57,47 +65,38 @@ void busReactor_on_acknowledge() {
 			// 1100 0000 0xc0
 			// 0011 1111 0x3f
 			header = (((++sequence << 6) & 0xc0) ^ 0xc0) | (device_address & 0x3f);
-			alarmKeyPad_Write((char)header);
-			alarmKeyPad_Flush();
-			alarmKeyPad_Write((char)charsSend + 1); // message length
-			alarmKeyPad_Flush();
+			AlarmKeyPad_writeChar(header);
+			AlarmKeyPad_writeChar(charsSend + 1); // message length
 
-			int chksum = 0x00;
+			int chksum = charsSend + 1;
 			for (int i = 0; i < charsSend; i++) {
 				// [0-9]
 				if (keys_to_send[i] >= 0x30 && keys_to_send[i] <= 0x39) {
-					alarmKeyPad_Write((keys_to_send[i] - 0x30));
+					AlarmKeyPad_writeChar((keys_to_send[i] - 0x30));
 					chksum += (keys_to_send[i] - 0x30);
 					// [#]
 				}
 				else if (keys_to_send[i] == 0x23) {
-					alarmKeyPad_Write(0x0B);
+					AlarmKeyPad_writeChar(0x0B);
 					chksum += 0x0B;
 					// [*]
 				}
 				else if (keys_to_send[i] == 0x2A) {
-					alarmKeyPad_Write(0x0A);
+					AlarmKeyPad_writeChar(0x0A);
 					chksum += 0x0A;
 					// [A B C D]
 				}
 				else if (keys_to_send[i] >= 0x41 && keys_to_send[i] <= 0x44) {
-					alarmKeyPad_Write((keys_to_send[i] - 0x25));
+					AlarmKeyPad_writeChar((keys_to_send[i] - 0x25));
 					chksum += (keys_to_send[i] - 0x25);
 				}
-				alarmKeyPad_Flush();
 			}
 
-			alarmKeyPad_Write((0xFF - header - (charsSend + 1) - chksum + 1)); // checksum
-			alarmKeyPad_Flush();
-
+			AlarmKeyPad_writeChar((uint8_t)((0x100 - header - chksum) & 0xFF)); // checksum
+			AlarmKeyPad_txLow();
+			//Log_Debug("Change Line %d\n", pulse);
 		}
-
-		// TODO: disable parity
-
-		memset(keys_to_send, 0x00, sizeof(keys_to_send));
-
 	}
-
 }
 
 /********************************************
@@ -112,8 +111,7 @@ void busReactor_Init( int device_address_parm) {
     header = 0x00;
     device_address = device_address_parm;
     callbackDisplay = NULL;
-    callbackStatus = NULL;  
-
+    callbackStatus = NULL; 
 }
 
 /*
@@ -135,18 +133,13 @@ void busReactor_handleEvents() {
 					if (callbackDisplay != NULL) {
 						(*callbackDisplay)();
 					}
-
 				}
-
 			}
 			else if (cr == F6_ACK_EVENT) {
 
 				if (acknowledgeHandler_handle_event(F6_ACK_EVENT) > 0) {
-
 					busReactor_on_acknowledge();
-
 				}
-
 			}
 			else if (cr == F2_STATUS_EVENT) {
 
@@ -187,37 +180,37 @@ void busReactor_handleEvents() {
 					return;
 				}
 
-				/*              char auxBuffer[4];
-							  sprintf(auxBuffer,"%02x,", cr );
-							  (*debugCallback)( auxBuffer );  */
-
+				/*
+				  char auxBuffer[4];
+				  sprintf(auxBuffer,"%02x,", cr );
+				  (*debugCallback)( auxBuffer );  
+				*/
 			}
 
 			// No incomming data ? check if transmition is needed
 		}
 	}
-	else // if (wantToSend == true) 
+	else if (wantToSend == true) 
 	{
 		busReactor_acknowledgeAddress();
-
 	}
-
-
 }
 
 void busReactor_acknowledgeAddress() {
-    // Waits on pin1 for a HIGH value is at least 12 millisec            
-    if (alarmKeyPad_pulseIn(GPIO_Value_High, DEFAULT_PULSE_TIMEOUT) >= 8000 ) {
-            
-        alarmKeyPad_Write( 0xff ); 
+	// Waits on pin1 for a HIGH value is at least 12 millisec   
+
+	if (alarmKeyPad_pulseIn(GPIO_Value_High, DEFAULT_PULSE_TIMEOUT) >= 12000) {
+
+		delayMicroseconds(2300);
 		alarmKeyPad_pulseIn(GPIO_Value_High, DEFAULT_PULSE_TIMEOUT);
 
-        alarmKeyPad_Write( 0xff );
+		delayMicroseconds(2300);
 		alarmKeyPad_pulseIn(GPIO_Value_High, DEFAULT_PULSE_TIMEOUT);
-                
-        alarmKeyPad_Write( ~(0x01 << (device_address-16) ) );
-        wantToSend = false;   
-    }
+
+		AlarmKeyPad_SendBit(3);
+		wantToSend = false;
+		Log_Debug("Address Sent\n");
+	}
 }
 
 void busReactor_request_to_send(const char *messageToKeyPad) {
@@ -248,5 +241,32 @@ void busReactor_attach_debug(panelDebugProtocolCallback _debugCallback)
 
 void busReactor_deattach_debug()
 {
+}
+
+int busReactor_RunCommand(runCmd cmd)
+{
+	switch (cmd)
+	{
+	case clearFaults:
+		busReactor_request_to_send("41121");
+		break;
+
+	case armAway:
+		busReactor_request_to_send("41122");
+		break;
+
+	case armStay:
+		busReactor_request_to_send("41123");
+		break;
+
+	case disarm:
+		busReactor_request_to_send("41121");
+		break;
+
+	default:
+		break;
+
+	}
+
 }
 

@@ -192,7 +192,7 @@ void statusHandler_to_string(char *internalBuffer) {
 	statusHandler_get_armed_mode_str(auxBufferM);
 	statusHandler_get_fault_str(auxBufferF);
     
-    sprintf(internalBuffer,"F2:{\"s\":\"%s\",\"m\":\"%s\",\"f\":\"%s\"}\0",auxBufferS,auxBufferM,auxBufferF );
+	sprintf(internalBuffer, "S:%s, M:%s, F:%s\0", auxBufferS, auxBufferM, auxBufferF);
 }
 
 void statusHandler_debug_to_string(char *intBuffer) {
