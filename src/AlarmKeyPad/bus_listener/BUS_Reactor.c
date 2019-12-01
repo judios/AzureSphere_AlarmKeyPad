@@ -55,8 +55,7 @@ void busReactor_on_acknowledge() {
 		uint8_t charsSend = strlen(keys_to_send);
 
 		if (charsSend > 0 && charsSend < KEY_MESSAGE_LEN) {
-			delayMicroseconds(600); 
-			AlarmKeyPad_txHigh();
+			delayMicroseconds(600);
 			sequence = acknowledgeHandler_get_seq_number();
 			int bufferIndex = 0;
 
@@ -93,7 +92,6 @@ void busReactor_on_acknowledge() {
 			}
 
 			AlarmKeyPad_writeChar((uint8_t)((0x100 - header - chksum) & 0xFF)); // checksum
-			AlarmKeyPad_txLow();
 			//Log_Debug("Change Line %d\n", pulse);
 		}
 	}
@@ -207,7 +205,17 @@ void busReactor_acknowledgeAddress() {
 		delayMicroseconds(2300);
 		alarmKeyPad_pulseIn(GPIO_Value_High, DEFAULT_PULSE_TIMEOUT);
 
-		AlarmKeyPad_SendBit(3);
+		/*
+		   Address 16  -> Bit(0)
+		   Address 17  -> Bit(1)
+		   Address 18  -> Bit(2)
+		   Address 19  -> Bit(3)
+		   Address 20  -> Bit(4)
+		   Address 21  -> Bit(5)
+		   Address 22  -> Bit(6)
+		   Address 23  -> Bit(7)
+		*/
+		AlarmKeyPad_SendBit(DEVICE_ADDRESS - 16);
 		wantToSend = false;
 		Log_Debug("Address Sent\n");
 	}

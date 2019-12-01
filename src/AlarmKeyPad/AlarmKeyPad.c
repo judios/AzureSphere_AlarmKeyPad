@@ -174,7 +174,7 @@ void delayMicroseconds(int delay)
 void AlarmKeyPad_writeChar(uint8_t chr)
 {
 	uint8_t bits[13];
-	bits[0] = GPIO_Value_Low;
+	bits[0] = GPIO_Value_High;
 	chr = ~chr;
 	int parity = 0;
 	int cBit = 0;
@@ -186,8 +186,8 @@ void AlarmKeyPad_writeChar(uint8_t chr)
 		chr >>= 1;
 	}
 	cBit = parity & 1;
-	bits[9] = cBit;
-	bits[10] = GPIO_Value_High;
+	bits[9] = !cBit;
+	bits[10] = GPIO_Value_Low;
 
 	//unsigned long tt = get_micros();
 	for (uint8_t i = 0; i < 11; i++)
@@ -204,7 +204,7 @@ void AlarmKeyPad_writeChar(uint8_t chr)
 uint8_t bbit[12] = { 1,0,0,0,0,0,0,0,0,0,0,0 };
 void AlarmKeyPad_SendBit(uint8_t bit)
 {
-	bit = bit % 8 + 2;
+	bit = bit % 8 + 1;
 	bbit[bit] = 1;
 	for (uint8_t i = 0; i < 10; i++)
 	{
