@@ -26,9 +26,11 @@ Connect Vista 20 Terminal 7 (data-out wire, yellow) to a max3232 (R1IN) and the 
                                                      |             
 #Project Scope
 
-The initial project scope is set to monitor the panel and output the messages to an OLED display connected to the MT3620 Starter Kit. The source code developed by Morpheus had to be translated to c in order for this to be used in a Azure Sphere high level App.                 
+The initial project scope is set to monitor the panel and output the messages to an OLED display connected to the Azure Sphere MT3620 Starter Kit. The source code developed by Morpheus had to be translated to c in order for this to be used in an Azure Sphere high level App. 
+
 
 #Protocol
+
 Essentially, the data out wire uses 8-bit, even parity, 1 stop bit, inverted, NRZ +12 volt TTL signals.  But, the data out wire also acts somewhat like a clock wire sometimes.  
 
 Regular messages are transmitted periodically and begin with either F7 or F2.  F7 messages are fixed length, F2 are dynamic length.  Both message types consist of a header and a body section.  The second by of F2 messages indicate the remaining bytes for said message.
@@ -37,6 +39,7 @@ When behaving as a clock wire, the panel will pull the line low for an extended 
 
 
 #Pulsing
+
 In order to avoid "open circuit" errors, every device periodically sends their device address to the panel.  This happens after F7 messages, and as a response to input querying from the panel.
 
 Pulsing doesn't exactly match up with serial data.  Timing is handled by synchronizing to rising edges sent from the server.  This can be faked by sending a 0xFF byte because the start bit will raise the line for a short time, and all the 1s will bring the line low (because the data signals are inverted).  There doesn't seem to be any parity bits sent during this pusling phase.
